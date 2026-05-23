@@ -1,6 +1,7 @@
 #include <bits/stdc++.h>
 #include "include/vector_generation.hpp"
 #include "include/binary_search.hpp"
+#include "include/gap_coding.hpp"
 
 #define UNIFORM_VECTOR_SIZE_IN_GIBIBYTE 1
 #define UNIFORM_VECTOR_SIZE_IN_MEBIBYTE UNIFORM_VECTOR_SIZE_IN_GIBIBYTE*1024
@@ -18,7 +19,6 @@
 #define NORMAL_VECTOR_SIZE NORMAL_VECTOR_SIZE_IN_BYTES/8
 #define NORMAL_VECTOR_RANDOM_BINARY_SEARCH_COUNT UNIFORM_VECTOR_RANDOM_BINARY_SEARCH_COUNT
 #define NORMAL_VECTOR_RANDOM_FROM_VECTOR_BINARY_SEARCH_COUNT UNIFORM_VECTOR_RANDOM_BINARY_SEARCH_COUNT
-
 
 int main(int argc, char** argv) {
     std::vector<std::int64_t> uniform_vector;
