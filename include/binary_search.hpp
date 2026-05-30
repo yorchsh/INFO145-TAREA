@@ -1,12 +1,18 @@
 #pragma once
 
 #include <bits/stdc++.h>
+#include "include/gap_coding.hpp"
 
 namespace bin_search {
     using namespace std;
     
     static std::random_device rd;
     static std::mt19937 generator(rd());
+
+    template<typename T>
+    T gapBinSearch(gap_coding::GapArray<T>, int count) {
+        
+    }
 
     template<typename T>
     std::int64_t trueRandom(std::vector<T> v, int count) {
@@ -51,4 +57,6 @@ namespace bin_search {
 
         return total_time/(1000*1000);
     }
+
+
 }

@@ -17,13 +17,13 @@ namespace gap_coding {
                 std::uint64_t size; // Número de celdas en bits virtuales
                 std::uint64_t physical_size; // Número de celdas de 64 bits
                 std::uint64_t block_size; // Tamaño fisico de cada celda (bloque) (64 bits)
-                std::uint64_t mask;
+                std::uint64_t mask_left;
             } gap;
 
             struct {
-                std::T* array; // Arreglo
-                std::T* begin; // Comienzo del arreglo
-                std::T* end;    // Fin del arreglo
+                T* array; // Arreglo
+                T* begin; // Comienzo del arreglo
+                T* end;    // Fin del arreglo
                 std::uint64_t size; // Número de celdas
                 std::uint64_t jump_length; // Tamaño del salto
             } sample;
@@ -58,13 +58,13 @@ namespace gap_coding {
                 // Preparar el Gap Array para almacenar el vector compactamente
                 gap.block_size = sizeof(std::uint64_t)*STD_UINT8_T_BITS;
                 gap.word_size = word_size;
-                sample.jump_length = sample_jump_length
+                sample.jump_length = sample_jump_length;
                 gap.size = v.size();
                 gap.physical_size = (std::uint64_t) std::ceil((gap.word_size * gap.size) / gap.block_size);
                 gap.array = new std::uint64_t[gap.physical_size];
                 gap.begin = &gap.array[0];
                 gap.end = &gap.array[gap.physical_size];
-                gap.mask = ~(~0 >> gap.block_size - gap.word_size);
+                gap.mask_left = ~(~0 >> gap.word_size);
 
                 std::uint64_t* gap_pointer = gap.begin;
                 T* sample_pointer = sample.begin;
@@ -90,8 +90,8 @@ namespace gap_coding {
                         gap_pointer += value << shift_amount;
                     }
 
-                    if (i+1 % sample.jump_length == 0) {
-                        *sample_pointer = v[i+1];
+                    if (i % (sample.jump_length + 1) == 0) {
+                        *sample_pointer = v[i];
                         sample_pointer++;
                     }
                 }
@@ -127,14 +127,16 @@ namespace gap_coding {
 
             T get(std::uint64_t index) {
                 T value = sample.array[index/(sample.jump_length + 1)];
-                std::uint64_t physical_index = (index/sample.jump_length + 1) * (sample.jump_length + 1);
-                std::uint64_t shift = gap.block_size - gap.word_size;
-                for (std::uint64_t i = (index/sample.jump_length + 1) * (sample_jump_length + 1); i <= index; i++) {
-                    value += ;
-                } &
-
+                std::uint64_t p0 = index * word_size;
+                std::uint64_t p1 = p0 / block_size;
+                std::uint64_t p2 = p0 % block_size;
+                std::uint64_t sum = 0;
+                while (sum < p2) {
+                    gap.mask_left >> p2;
+                    sum += gap.word_size;
+                    value += (gap.array[p1] & (gap.mask_left >> sum)) >> (gap.block_size - gap.word_size);
+                }
             }
-
 
     };
 
