@@ -37,4 +37,21 @@ namespace vec_gen {
 
         return v;
     }
+    
+    // esto debemos usarlo en todos los Casos
+    template<typename T>
+    std::vector<T> linealVector(int size, T epsilon) {
+        std::vector<T> v;
+        v.reserve(size);
+
+        std::uniform_int_distribution<T> gap(0, epsilon - 1);
+
+        T actual = 0;
+        for (int i = 0; i < size; i++) {
+            actual += gap(generator);
+            v.push_back(actual);
+        }
+
+        return v;
+    }
 }
