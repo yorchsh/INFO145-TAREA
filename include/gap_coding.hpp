@@ -34,7 +34,7 @@ namespace gap_coding {
         
                 // Encontrar el máximo valor del gap coding
                 
-                std::uint64_t max_T = 0;
+                std::int64_t max_T = 0;
                 for (std::uint64_t i = 0; i < v.size() - 1; i++) {
                     // Como el vector está en orden no-decreciente la diferencia siempre será un número natural
                     // incluyendo el 0
@@ -63,10 +63,10 @@ namespace gap_coding {
                 gap.word_size = WORD_SIZE_BITS;
                 std::uint64_t mask = 0;
                 while ((max & mask) == 0) {
-                    mask |=  1ULL << gap.word_size;
-                    gap.word_size--;
+                    mask |=  1ULL << --gap.word_size;
+                    
                 }
-                gap.word_size++;
+                gap.word_size += 1;
                 
                 cout << "max: " << max << endl;
                 cout << "gap word size: " << gap.word_size << endl;
@@ -81,12 +81,12 @@ namespace gap_coding {
                 // Preparar el Gap Array para almacenar el vector compactamente
                 gap.block_size = WORD_SIZE_BITS;
                 gap.size = v.size();
-                gap.physical_size = (std::uint64_t) std::ceil((gap.word_size * gap.size) / gap.block_size);
+                gap.physical_size = ((gap.word_size * gap.size) / gap.block_size) + 1;
                 gap.array = new std::uint64_t[gap.physical_size];
                 gap.begin = &gap.array[0];
                 gap.end = &gap.array[gap.physical_size];
-                gap.mask_left = ~(~0 >> gap.word_size);
-                gap.mask_right = ~0 >> (gap.block_size - gap.word_size);
+                gap.mask_left = ~(~0ULL >> gap.word_size);
+                gap.mask_right = ~0ULL >> (gap.block_size - gap.word_size);
                 gap.diff_block_word_size = gap.block_size - gap.word_size;
 
                 for (std::uint64_t* p = gap.begin; p != gap.end; p++) {
@@ -104,7 +104,7 @@ namespace gap_coding {
                 std::uint64_t difference;
 
                 for (std::uint64_t i = 0; i < v.size() - 1; i++) {
-                    difference = (std::uint64_t) (v[i+1] - v[i]);
+                    difference = ((std::uint64_t) (v[i+1] - v[i]));
                     shift_amount -= gap.word_size;
 
                     if (shift_amount >= 0) {
@@ -118,7 +118,7 @@ namespace gap_coding {
                     }
 
                     if (i % (sample.jump_length + 1) == 0) {
-                        *sample_pointer = v[i];
+                        *sample_pointer = v[i / (sample.jump_length + 1)];
                         sample_pointer++;
                     }
                 }
@@ -132,27 +132,29 @@ namespace gap_coding {
             }
 
             T get(std::uint64_t index) {
-                T value = sample.array[index/(sample.jump_length + 1)];
+                std::uint64_t sample_index = index/(sample.jump_length + 1);
+                T value = sample.array[sample_index];
                 
-                std::uint64_t sample_index_in_gap = (index/(sample.jump_length + 1)) * (sample.jump_length + 1);
+                std::uint64_t sample_index_in_gap = sample_index * (sample.jump_length + 1);
                 std::uint64_t sample_index_bits = sample_index_in_gap * gap.word_size;
                 
                 std::uint64_t gap_index = sample_index_bits / gap.block_size;
                 std::uint64_t* gap_pointer = &gap.array[gap_index];
                 std::int64_t shift_amount = gap.block_size - sample_index_bits + (gap_index * gap.block_size);
+                // std::int64_t shift_amount = gap.block_size - sample_index_bits;
 
                 
-                for (std::uint64_t i = 0; i < index - sample_index_in_gap; i++) {
+                for (std::uint64_t i = 0; i <= index - sample_index_in_gap; i++) {
                     shift_amount -= gap.word_size;
                     if (shift_amount >= 0) {
                         value += (*gap_pointer & (gap.mask_right << shift_amount)) >> shift_amount;
                     }
                     else {
-                        value += (*gap_pointer & (gap.mask_right >> -shift_amount)) << -shift_amount;
+                        value += (*gap_pointer & (gap.mask_right >> (-1 * shift_amount))) << (-1 * shift_amount);
                         gap_pointer++;
                         shift_amount += gap.block_size;
                         value += (*gap_pointer & (gap.mask_right << shift_amount)) >> shift_amount;
-                        std::uint64_t calc = gap.block_size - shift_amount;
+                        // std::uint64_t calc = gap.block_size - shift_amount;
                     }
                 }
                 return value;
