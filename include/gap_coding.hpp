@@ -41,7 +41,7 @@ namespace gap_coding {
                     std::int64_t cmp = (v[i+1] - v[i]);
 
                     if (max_T < cmp) {
-                        std::cout << "idx: " << i << "max: " << max_T << endl;
+                        // std::cout << "idx: " << i << "max: " << max_T << endl;
                         max_T = cmp;
                     }
                 }
@@ -68,8 +68,8 @@ namespace gap_coding {
                 }
                 gap.word_size += 1;
                 
-                cout << "max: " << max << endl;
-                cout << "gap word size: " << gap.word_size << endl;
+                // cout << "max: " << max << endl;
+                //cout << "gap word size: " << gap.word_size << endl;
 
                 // Preparar el sample
                 sample.size = v.size() / sample_jump_length + 1;
@@ -97,10 +97,9 @@ namespace gap_coding {
                 T* sample_pointer = sample.begin;
 
                 *sample_pointer = *v.begin();
-                sample_pointer++;
 
                 std::int64_t shift_amount = gap.block_size - gap.word_size;
-                std::cout << "real shift amount: " << shift_amount << endl;
+                // std::cout << "real shift amount: " << shift_amount << endl;
                 std::uint64_t difference;
 
                 for (std::uint64_t i = 0; i < v.size() - 1; i++) {
@@ -118,7 +117,7 @@ namespace gap_coding {
                     }
 
                     if (i % (sample.jump_length + 1) == 0) {
-                        *sample_pointer = v[i / (sample.jump_length + 1)];
+                        *sample_pointer = v[i];
                         sample_pointer++;
                     }
                 }
@@ -140,12 +139,19 @@ namespace gap_coding {
                 
                 std::uint64_t gap_index = sample_index_bits / gap.block_size;
                 std::uint64_t* gap_pointer = &gap.array[gap_index];
-                std::int64_t shift_amount = gap.block_size - sample_index_bits + (gap_index * gap.block_size);
+                std::int64_t shift_amount = gap.block_size - sample_index_bits + ((gap_index) * gap.block_size) - gap.word_size;
+                if (shift_amount - gap.word_size <= -1 * gap.block_size) {
+                    shift_amount += gap.block_size;
+                    gap_pointer++;
+
+                }
+                // std::println("shift_amount = {} - {} + ({} * {}) = {} ", gap.block_size, sample_index_bits, gap_index, gap.block_size, shift_amount);
                 // std::int64_t shift_amount = gap.block_size - sample_index_bits;
 
                 
-                for (std::uint64_t i = 0; i <= index - sample_index_in_gap; i++) {
+                for (std::uint64_t i = 1; i <= index - sample_index_in_gap; i++) {
                     shift_amount -= gap.word_size;
+                    // std::println("for: shift_amount: {}", shift_amount);
                     if (shift_amount >= 0) {
                         value += (*gap_pointer & (gap.mask_right << shift_amount)) >> shift_amount;
                     }
