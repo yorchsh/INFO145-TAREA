@@ -176,12 +176,14 @@ int main(int argc, char** argv) {
 
         // Código para debugear
         
-        /*
+        
+        std::println("v[i+1]-v[i] vs gap[i+1]");
         for (int i = 0; i < 10; i++) {
-        std::print("{}, ", uniform.vector[i]);
+        std::println("{}: {} | {}", i+1, uniform.vector[i+1] - uniform.vector[i], gp_uniform.get_gap(i+1));
         }
         std::println();
 
+        /*
         std::println("last elements");
         for (int i = uniform.vector.size()-10; i < uniform.vector.size()-1; i++) {
             std::print("{}, ", uniform.vector[i]);
@@ -217,7 +219,7 @@ int main(int argc, char** argv) {
         std::println("GAPS: ");
         debug::printGaps(uniform.vector, 10);
         debug::printBitsString(gp_uniform.gap.array, 10);
-        
+        */
 
 
         /*———————————————————————————————————————————————————————————————————————
@@ -245,7 +247,7 @@ int main(int argc, char** argv) {
 
         std::print("CASE 3: (3/4): build Shannon-Fano: normal distribution vector..."); std::fflush(stdout);
         auto c4 = std::chrono::high_resolution_clock::now();
-        caso3::ShannonFano<std::int64_t> sf_normal(normal_vector, 32);
+        caso3::ShannonFano<std::int64_t> sf_normal(normal.vector, 32);
         auto c5 = std::chrono::high_resolution_clock::now();
         std::println(" DONE.");
 
@@ -253,7 +255,7 @@ int main(int argc, char** argv) {
             NORMAL_VECTOR_RANDOM_FROM_VECTOR_BINARY_SEARCH_COUNT); std::fflush(stdout);
         auto c6 = std::chrono::high_resolution_clock::now();
         for (int i = 0; i < NORMAL_VECTOR_RANDOM_FROM_VECTOR_BINARY_SEARCH_COUNT; i++)
-            sf_normal.buscar(normal_vector[rand() % normal_vector.size()]);
+            sf_normal.buscar(normal.vector[rand() % normal.vector.size()]);
         auto c7 = std::chrono::high_resolution_clock::now();
         std::println(" DONE.");
 
@@ -272,7 +274,7 @@ int main(int argc, char** argv) {
         std::println("Build (Shannon-Fano):             {}ms", sf_normal_build_time);
         std::println("Search:                           {}ms", sf_normal_search_time);
         std::println("Space (compressed):               {} bits", sf_normal.espacio_bits());
-        std::println("Space (explicit):                 {} bits", (std::uint64_t) normal_vector.size() * 64);
+        std::println("Space (explicit):                 {} bits", (std::uint64_t) normal.vector.size() * 64);
 
         // guardamos las metricas del Caso 3 en el csv (lo pide el Hito 1).
         // Jorge: agrega aca las filas de Caso 1 y 2, o mejor sube este ofstream
@@ -282,9 +284,9 @@ int main(int argc, char** argv) {
         salida << lineal_vector.size() << ",lineal,3," << sf_lineal_build_time << ","
                << sf_lineal_search_time << "," << UNIFORM_VECTOR_RANDOM_FROM_VECTOR_BINARY_SEARCH_COUNT << ","
                << sf_lineal.espacio_bits() << "," << (std::uint64_t) lineal_vector.size() * 64 << "\n";
-        salida << normal_vector.size() << ",normal,3," << sf_normal_build_time << ","
+        salida << normal.vector.size() << ",normal,3," << sf_normal_build_time << ","
                << sf_normal_search_time << "," << NORMAL_VECTOR_RANDOM_FROM_VECTOR_BINARY_SEARCH_COUNT << ","
-               << sf_normal.espacio_bits() << "," << (std::uint64_t) normal_vector.size() * 64 << "\n";
+               << sf_normal.espacio_bits() << "," << (std::uint64_t) normal.vector.size() * 64 << "\n";
 
     } else if (argc == 3 && strncmp(argv[1], "-i", 2) == 0) {
         // CASE 3 modo archivo: construye Shannon-Fano desde el CSV y busca interactivo
@@ -315,7 +317,7 @@ int main(int argc, char** argv) {
                 std::println("{}: no encontrado ({} ns)", x, ns);
         }
 
-    */
+    
     } else if (argc == 4) {
         std::println("Complete mode");
         std::println("args: {}, {}", argv[1], argv[2]);

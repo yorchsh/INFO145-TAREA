@@ -47,17 +47,6 @@ namespace gap_coding {
                 }
 
                 std::uint64_t max = static_cast<std::uint64_t>(max_T);
-                /*
-                typename std::vector<T>::iterator it = v.begin();
-
-                while (it+1 != v.end()) {
-                    // Como el vector está en orden no-decreciente la diferencia siempre será un número natural
-                    // incluyendo el 0
-                    std::uint64_t cmp = static_cast<std::uint64_t> (*(it+1) - *(it));
-                    if (max < cmp)
-                        max = cmp;
-                    it++;
-                }*/
             
                 // Determinar número de bits necesarios para cada celda del vector a almacenar
                 gap.word_size = WORD_SIZE_BITS;
@@ -69,7 +58,7 @@ namespace gap_coding {
                 gap.word_size += 1;
                 
                 // cout << "max: " << max << endl;
-                //cout << "gap word size: " << gap.word_size << endl;
+                // cout << "gap word size: " << gap.word_size << endl;
 
                 // Preparar el sample
                 sample.size = v.size() / sample_jump_length + 1;
@@ -160,65 +149,31 @@ namespace gap_coding {
                         gap_pointer++;
                         shift_amount += gap.block_size;
                         value += (*gap_pointer & (gap.mask_right << shift_amount)) >> shift_amount;
-                        // std::uint64_t calc = gap.block_size - shift_amount;
                     }
                 }
                 return value;
+            }
 
-                /*
+            std::uint64_t get_gap(std::uint64_t index) {
                 std::uint64_t bits = index * gap.word_size;
-                std::uint64_t gap_block_start_bit = (bits / gap.block_size)*gap_block_size;
-                std::uint64_t gap_pointer  = gap.array[bits / gap.block_size];
-                std::uint64_t mov = bits % gap.block_size;
-                std::uint64_t sum = 0;
+                std::uint64_t gap_index = bits / gap.block_size;
+                std::uint64_t* gap_pointer = &gap.array[gap_index];
+                std::int64_t shift_amount = gap.block_size - bits + (gap_index * gap.block_size) - gap.word_size;
 
-                for (int i = 0; i < mov; i++) {
-                    std:: cout << "\nIM INSIDE YOUR HOUSE \n";
-                    sum += gap.word_size;
-                    value += static_cast<std::uint64_t>((gap.array[p1] & (gap.mask_left >> sum)) >> (gap.block_size - sum));
+
+                std::uint64_t value = 0;
+                if (shift_amount >= 0) {
+                    value += (*gap_pointer & (gap.mask_right << shift_amount)) >> shift_amount;
                 }
-                return value;
-                */
+                else {
+                    value += (*gap_pointer & (gap.mask_right >> (-1 * shift_amount))) << (-1 * shift_amount);
+                    gap_pointer++;
+                    shift_amount += gap.block_size;
+                    value += (*gap_pointer & (gap.mask_right << shift_amount)) >> shift_amount;
+                }
+
+                return value; 
             }
 
     };
-
-    /*
-    template<typename T>
-    
-    GapArray<T> build(std::vector<T> v, int64_t sample_jump_length) {
-
-        return GapArray<T>(v, word_size);
-
-        // Adaptar
-
-        if (32 < word_size && word_size <= 64) {
-            return GapArray<std::uint64_t>(v, word_size);
-        }
-        else if (16 < word_size && word_size <= 32) {
-            return GapArray<uint32_t>(v, word_size);
-        } 
-        else if (8 < word_size && word_size <= 16) {
-            return GapArray<uint16_t>(v, word_size);
-        }
-        else {
-            return GapArray<uint8_t>(v, word_size);
-        }
-        
-
-        println("Número de bits por celda requeridos para representar el vector: {}b",
-             word_size)
-
-        std::vector<std::uint64_t> initial_gap;
-        initial_gap.reserve(v.size());
-        T* p = v.begin();
-        initial_gap.push_back(*p);
-        ++p;
-
-        while (p != v.end()) {
-            initial_gap.push_back(*(++p) - *p);
-        }
-    }
-    */
-
 }
