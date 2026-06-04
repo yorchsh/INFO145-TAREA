@@ -1,61 +1,73 @@
 #pragma once
 
 #include <bits/stdc++.h>
-#include "include/gap_coding.hpp"
+#include "gap_coding.hpp"
 
 namespace bin_search {
     using namespace std;
-    
-    static std::random_device rd;
-    static std::mt19937 generator(rd());
+
+    struct resultsDataStruct {
+        uint64_t time = 0; // Tiempo de todas las busquedas
+        uint64_t found = 0; // Veces que se encontro el elemento en el vector 
+        uint64_t not_found = 0; // Veces que no fue encontrado el elemento en el vector
+    }; typedef struct resultsDataStruct resultsData;
+
+    static random_device rd;
+    static mt19937 generator(rd());
 
     template<typename T>
-    T gapBinSearch(gap_coding::GapArray<T>, int count) {
+    T gapBinSearch(gap_coding::GapArray<T>& , int count) {
         
     }
 
     template<typename T>
-    std::int64_t trueRandom(std::vector<T> v, int count) {
-        /*  Descripción: Hace count busquedas binarias con numeros al azar en el vector v dado
-            Retorna: suma de todos los tiempos (ms) en realizar *solo* las busquedas binarias
-        */
-        std::uniform_int_distribution<T> distribution(
-            std::numeric_limits<T>::min(),
-            std::numeric_limits<T>::max()
+    resultsData trueRandom(vector<T>& v, int count) {
+        // Hace count busquedas binarias con numeros al azar en el vector v dado
+        resultsData results;
+        uniform_int_distribution<T> distribution(
+            numeric_limits<T>::min(),
+            numeric_limits<T>::max()
         );
         
-        std::int64_t total_time = 0;
-
         for (int i = 0; i < count; i++) {
             T rand = distribution(generator);
-            auto t0 = std::chrono::high_resolution_clock::now();
-            std::binary_search(v.begin(), v.end(), rand);
-            auto t1 = std::chrono::high_resolution_clock::now();
-            total_time += std::chrono::duration_cast<std::chrono::nanoseconds>(t1-t0).count();
+            auto t0 = chrono::high_resolution_clock::now();
+            bool found = binary_search(v.begin(), v.end(), rand);
+            auto t1 = chrono::high_resolution_clock::now();
+            results.time += chrono::duration_cast<chrono::nanoseconds>(t1-t0).count();
+            
+            if (found)
+                results.found++;
+            else
+                results.not_found++;
         }
-
-        return total_time/(1000*1000);
+        
+        results.time /= 1000*1000; // Pasar a milisegundos
+        return results;
     }
 
     template<typename T>
-    std::int64_t selectRandom(std::vector<T> v, int count) {
-        /*  Descripción: Hace count busquedas binarias con numeros del vector v
-                         tomadas al azar en el mismo vector
-            Retorna: suma de todos los tiempos (ms) en realizar *solo* las busquedas binarias
-        */
-        std::uniform_int_distribution<T> distribution(0, v.size());
-
-        std::int64_t total_time = 0;
+    resultsData selectRandom(vector<T>& v, int count) {
+        // Descripción: Hace count busquedas binarias con numeros del vector v tomadas al azar en el mismo vector
+        
+        resultsData results;
+        uniform_int_distribution<T> distribution(0, v.size());
 
         for (int i = 0; i < count; i++) {
             T rand = distribution(generator);
-            auto t0 = std::chrono::high_resolution_clock::now();
-            std::binary_search(v.begin(), v.end(), rand);
-            auto t1 = std::chrono::high_resolution_clock::now();
-            total_time += std::chrono::duration_cast<std::chrono::nanoseconds>(t1-t0).count();
+            auto t0 = chrono::high_resolution_clock::now();
+            bool found = binary_search(v.begin(), v.end(), rand);
+            auto t1 = chrono::high_resolution_clock::now();
+            results.time += chrono::duration_cast<chrono::nanoseconds>(t1-t0).count(); 
+            
+            if (found)
+                results.found++;
+            else
+                results.not_found++;
         }
 
-        return total_time/(1000*1000);
+        results.time /= 1000*1000; // Pasar a milisegundos
+        return results;
     }
 
 
