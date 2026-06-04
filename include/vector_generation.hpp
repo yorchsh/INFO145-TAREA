@@ -6,6 +6,7 @@ namespace vec_gen {
     static std::random_device rd;
     static std::mt19937 generator(rd());
 
+    // este probablemente matará uno que otro PC
     template<typename T>
     std::vector<T> uniformVector(int size) {
         std::vector<T> v;
@@ -22,6 +23,7 @@ namespace vec_gen {
         return v;
     }
 
+    // este lo usamos en Todo
     template<typename T>
     std::vector<T> normalVector(int size, std::float64_t standard_deviation) {
         std::vector<T> v;

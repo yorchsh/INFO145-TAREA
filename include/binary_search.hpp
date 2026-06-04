@@ -1,7 +1,7 @@
 #pragma once
 
 #include <bits/stdc++.h>
-#include "include/gap_coding.hpp"
+#include "gap_coding.hpp"
 
 namespace bin_search {
     using namespace std;

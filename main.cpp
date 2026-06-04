@@ -146,8 +146,7 @@ int main(int argc, char** argv) {
 
         /*———————————————————————————————————————————————————————————————————————
         CASE 3 - Compresion Shannon-Fano sobre los gaps.
-        Para la distribucion lineal del PDF (A[i]=A[i-1]+rand()%eps, gaps
-        acotados) el Caso 3 genera su propio vector con linealVector, porque con
+        El Caso 3 genera su propio vector con linealVector, porque con
         esos gaps la compresion si sirve. La normal la comparte con Casos 1 y 2.
         ———————————————————————————————————————————————————————————————————————*/
 
