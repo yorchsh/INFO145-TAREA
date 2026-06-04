@@ -172,7 +172,7 @@ namespace gap_coding {
                     value += (*gap_pointer & (gap.mask_right << shift_amount)) >> shift_amount;
                 }
 
-                return value; 
+                return value;
             }
 
     };
