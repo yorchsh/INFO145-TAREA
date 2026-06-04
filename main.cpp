@@ -6,22 +6,22 @@
 #include "include/csv.hpp"
 #include "include/debug.hpp"
 
-#define UNIFORM_VECTOR_SIZE_IN_GIBIBYTE 0.1
-#define UNIFORM_VECTOR_SIZE_IN_MEBIBYTE UNIFORM_VECTOR_SIZE_IN_GIBIBYTE*1024
-#define UNIFORM_VECTOR_SIZE_IN_KIBIBYTE UNIFORM_VECTOR_SIZE_IN_MEBIBYTE*1024
-#define UNIFORM_VECTOR_SIZE_IN_BYTES UNIFORM_VECTOR_SIZE_IN_KIBIBYTE*1024
-#define UNIFORM_VECTOR_SIZE UNIFORM_VECTOR_SIZE_IN_BYTES/8
-#define UNIFORM_VECTOR_RANDOM_BINARY_SEARCH_COUNT 1024*1024
-#define UNIFORM_VECTOR_RANDOM_FROM_VECTOR_BINARY_SEARCH_COUNT UNIFORM_VECTOR_RANDOM_BINARY_SEARCH_COUNT
+#define LINEAL_VECTOR_SIZE_IN_GIBIBYTE 0.1
+#define LINEAL_VECTOR_SIZE_IN_MEBIBYTE LINEAL_VECTOR_SIZE_IN_GIBIBYTE*1024
+#define LINEAL_VECTOR_SIZE_IN_KIBIBYTE LINEAL_VECTOR_SIZE_IN_MEBIBYTE*1024
+#define LINEAL_VECTOR_SIZE_IN_BYTES LINEAL_VECTOR_SIZE_IN_KIBIBYTE*1024
+#define LINEAL_VECTOR_SIZE LINEAL_VECTOR_SIZE_IN_BYTES/8
+#define LINEAL_VECTOR_RANDOM_BINARY_SEARCH_COUNT 1024*1024
+#define LINEAL_VECTOR_RANDOM_FROM_VECTOR_BINARY_SEARCH_COUNT LINEAL_VECTOR_RANDOM_BINARY_SEARCH_COUNT
 
 #define NORMAL_VECTOR_STANDARD_DEVIATION 1.0
-#define NORMAL_VECTOR_SIZE_IN_GIBIBYTE UNIFORM_VECTOR_SIZE_IN_GIBIBYTE
+#define NORMAL_VECTOR_SIZE_IN_GIBIBYTE LINEAL_VECTOR_SIZE_IN_GIBIBYTE
 #define NORMAL_VECTOR_SIZE_IN_MEBIBYTE NORMAL_VECTOR_SIZE_IN_GIBIBYTE*1024
 #define NORMAL_VECTOR_SIZE_IN_KIBIBYTE NORMAL_VECTOR_SIZE_IN_MEBIBYTE*1024
 #define NORMAL_VECTOR_SIZE_IN_BYTES NORMAL_VECTOR_SIZE_IN_KIBIBYTE*1024
 #define NORMAL_VECTOR_SIZE NORMAL_VECTOR_SIZE_IN_BYTES/8
-#define NORMAL_VECTOR_RANDOM_BINARY_SEARCH_COUNT UNIFORM_VECTOR_RANDOM_BINARY_SEARCH_COUNT
-#define NORMAL_VECTOR_RANDOM_FROM_VECTOR_BINARY_SEARCH_COUNT UNIFORM_VECTOR_RANDOM_BINARY_SEARCH_COUNT
+#define NORMAL_VECTOR_RANDOM_BINARY_SEARCH_COUNT LINEAL_VECTOR_RANDOM_BINARY_SEARCH_COUNT
+#define NORMAL_VECTOR_RANDOM_FROM_VECTOR_BINARY_SEARCH_COUNT LINEAL_VECTOR_RANDOM_BINARY_SEARCH_COUNT
 
 struct vectorDataStruct {
     std::vector<int64_t> vector;
@@ -66,45 +66,45 @@ int main(int argc, char** argv) {
         ———————————————————————————————————————————————————————————————————————*/
 
 
-        vectorData uniform;
+        vectorData lineal;
 
-        std::print("CASE 1: (1/8): generate: uniform distribution vector ({} mebibytes)...",
-             UNIFORM_VECTOR_SIZE_IN_MEBIBYTE); std::fflush(stdout);
+        std::print("CASE 1: (1/8): generate: lineal distribution vector ({} mebibytes)...",
+             LINEAL_VECTOR_SIZE_IN_MEBIBYTE); std::fflush(stdout);
         auto t0 = std::chrono::high_resolution_clock::now();
-        uniform.vector = vec_gen::uniformVector<int64_t>(UNIFORM_VECTOR_SIZE);
+        lineal.vector = vec_gen::linealVector<int64_t>(LINEAL_VECTOR_SIZE, 256);
         auto t1 = std::chrono::high_resolution_clock::now();
         
         std::println(" DONE.");
-        uniform.gen_time = std::chrono::duration_cast<std::chrono::milliseconds>(t1-t0).count();
+        lineal.gen_time = std::chrono::duration_cast<std::chrono::milliseconds>(t1-t0).count();
 
 
-        std::print("CASE 1: (2/8): sort: uniform distribution vector..."); std::fflush(stdout);
+        std::print("CASE 1: (2/8): sort: lineal distribution vector..."); std::fflush(stdout);
         t0 = std::chrono::high_resolution_clock::now();
-        sort(uniform.vector.begin(), uniform.vector.end());
+        sort(lineal.vector.begin(), lineal.vector.end());
         t1 = std::chrono::high_resolution_clock::now();
         
         std::println(" DONE.");
-        uniform.sort_time = std::chrono::duration_cast<std::chrono::milliseconds>(t1-t0).count();
+        lineal.sort_time = std::chrono::duration_cast<std::chrono::milliseconds>(t1-t0).count();
 
 
-        std::print("CASE 1: (3/8): random binary search ({}n): uniform distribution vector...",
-            UNIFORM_VECTOR_RANDOM_BINARY_SEARCH_COUNT); std::fflush(stdout);
-        uniform.true_results = bin_search::trueRandom(uniform.vector, 
-            UNIFORM_VECTOR_RANDOM_BINARY_SEARCH_COUNT);
+        std::print("CASE 1: (3/8): random binary search ({}n): lineal distribution vector...",
+            LINEAL_VECTOR_RANDOM_BINARY_SEARCH_COUNT); std::fflush(stdout);
+        lineal.true_results = bin_search::trueRandom(lineal.vector, 
+            LINEAL_VECTOR_RANDOM_BINARY_SEARCH_COUNT);
         std::println(" DONE.");
 
 
-        std::print("CASE 1: (4/8): random from vector binary search ({}n): uniform distribution vector...",
-            UNIFORM_VECTOR_RANDOM_FROM_VECTOR_BINARY_SEARCH_COUNT); std::fflush(stdout);
-        uniform.select_results = bin_search::selectRandom(uniform.vector, 
-            UNIFORM_VECTOR_RANDOM_FROM_VECTOR_BINARY_SEARCH_COUNT);
+        std::print("CASE 1: (4/8): random from vector binary search ({}n): lineal distribution vector...",
+            LINEAL_VECTOR_RANDOM_FROM_VECTOR_BINARY_SEARCH_COUNT); std::fflush(stdout);
+        lineal.select_results = bin_search::selectRandom(lineal.vector, 
+            LINEAL_VECTOR_RANDOM_FROM_VECTOR_BINARY_SEARCH_COUNT);
         std::println(" DONE.");
 
 
         vectorData normal;
 
         std::print("CASE 1: (5/8): generate: normal distribution vector ({} mebibytes, {} sigma)...",
-            UNIFORM_VECTOR_SIZE_IN_MEBIBYTE, NORMAL_VECTOR_STANDARD_DEVIATION); std::fflush(stdout);
+            LINEAL_VECTOR_SIZE_IN_MEBIBYTE, NORMAL_VECTOR_STANDARD_DEVIATION); std::fflush(stdout);
         
         t0 = std::chrono::high_resolution_clock::now();
         normal.vector = vec_gen::normalVector<int64_t>(NORMAL_VECTOR_SIZE, NORMAL_VECTOR_STANDARD_DEVIATION);
@@ -140,12 +140,12 @@ int main(int argc, char** argv) {
 
         std::println("—RESULTS—");
         std::println("CASE 1:");
-        std::println("(Uniform distribution vector)");
-        std::println("Generation:                       {}ms", uniform_gen_time);
-        std::println("Sorting:                          {}ms", uniform_sort_time);
-        std::println("Generation+Sorting:               {}ms", uniform_gen_time + uniform_sort_time);
-        std::println("Random binary search:             {}ms", uniform_random_binary_search_time);
-        std::println("Random from vector binary search: {}ms", uniform_random_from_vector_binary_search_time);
+        std::println("(Lineal distribution vector)");
+        std::println("Generation:                       {}ms", lineal_gen_time);
+        std::println("Sorting:                          {}ms", lineal_sort_time);
+        std::println("Generation+Sorting:               {}ms", lineal_gen_time + lineal_sort_time);
+        std::println("Random binary search:             {}ms", lineal_random_binary_search_time);
+        std::println("Random from vector binary search: {}ms", lineal_random_from_vector_binary_search_time);
         std::println("(Normal distribution vector)");
         std::println("Generation:                       {}ms", normal_gen_time);
         std::println("Sorting:                          {}ms", normal_sort_time);
@@ -167,26 +167,24 @@ int main(int argc, char** argv) {
 
         ———————————————————————————————————————————————————————————————————————*/
 
-        std::print("CASE 2: (1/8): generating gap_coding array from: uniform distribution vector..."); std::fflush(stdout);
+        std::print("CASE 2: (1/8): generating gap_coding array from: lineal distribution vector..."); std::fflush(stdout);
         t0 = std::chrono::high_resolution_clock::now();
-        gap_coding::GapArray gp_uniform(uniform.vector, 1000);
+        gap_coding::GapArray gp_lineal(lineal.vector, 1000);
         t1 = std::chrono::high_resolution_clock::now();
-        uniform.gap_coding_gen_time = std::chrono::duration_cast<std::chrono::milliseconds>(t1-t0).count();
+        lineal.gap_coding_gen_time = std::chrono::duration_cast<std::chrono::milliseconds>(t1-t0).count();
         std::println(" DONE.");
 
         // Código para debugear
         
-        
-        std::println("v[i+1]-v[i] vs gap[i+1]");
+        /*
         for (int i = 0; i < 10; i++) {
-        std::println("{}: {} | {}", i+1, uniform.vector[i+1] - uniform.vector[i], gp_uniform.get_gap(i+1));
+        std::print("{}, ", lineal.vector[i]);
         }
         std::println();
 
-        /*
         std::println("last elements");
-        for (int i = uniform.vector.size()-10; i < uniform.vector.size()-1; i++) {
-            std::print("{}, ", uniform.vector[i]);
+        for (int i = lineal.vector.size()-10; i < lineal.vector.size()-1; i++) {
+            std::print("{}, ", lineal.vector[i]);
         }
 
         
@@ -194,54 +192,50 @@ int main(int argc, char** argv) {
         
         std::println("VECTOR[i] vs GAP CODING get(i):");
         for (int i = 0; i < 3; i++) {
-            std::println("{}: {} | {}, ", i, uniform.vector[i], gp_uniform.get(i));
+            std::println("{}: {} | {}, ", i, lineal.vector[i], gp_lineal.get(i));
         }
         for (int i = 1001; i < 1004; i++) {
-            std::println("{}: {} | {}, ", i, uniform.vector[i], gp_uniform.get(i));
+            std::println("{}: {} | {}, ", i, lineal.vector[i], gp_lineal.get(i));
         }
         std::println();
 
         std::println("CMP GAP CODE VS VECTOR");
         std::uint64_t number_finish = 0;
-        for (number_finish = 0; number_finish < uniform.vector.size(); number_finish++) {
-            if (uniform.vector[number_finish] != gp_uniform.get(number_finish))
+        for (number_finish = 0; number_finish < lineal.vector.size(); number_finish++) {
+            if (lineal.vector[number_finish] != gp_lineal.get(number_finish))
                 break;
         }
-        std::print("vector size: {}, ", uniform.vector.size());
+        std::print("vector size: {}, ", lineal.vector.size());
         std::println("number_finish: {}", number_finish);
         std::println("GAP CODING bits(i):");
 
         for (int i = 0; i < 10; i++) {
             print("{}: ", i);
-            debug::printBits(gp_uniform.gap.array[i]);
+            debug::printBits(gp_lineal.gap.array[i]);
         }
 
         std::println("GAPS: ");
-        debug::printGaps(uniform.vector, 10);
-        debug::printBitsString(gp_uniform.gap.array, 10);
-        */
-
+        debug::printGaps(lineal.vector, 10);
+        debug::printBitsString(gp_lineal.gap.array, 10);
+        
+    */
 
         /*———————————————————————————————————————————————————————————————————————
         CASE 3 - Compresion Shannon-Fano sobre los gaps.
-        El Caso 3 genera su propio vector con linealVector, porque con
-        esos gaps la compresion si sirve. La normal la comparte con Casos 1 y 2.
+        El Caso 3 usa el vector lineal y normal de los Casos 1 y 2.
         ———————————————————————————————————————————————————————————————————————*/
-
-        // Por ahora el vector se genera acá porque Caso 1 usa uniform [ *** COORDINAR ESTO *** ]
-        std::vector<std::int64_t> lineal_vector = vec_gen::linealVector<std::int64_t>(UNIFORM_VECTOR_SIZE, 256);
 
         std::print("CASE 3: (1/4): build Shannon-Fano: lineal distribution vector..."); std::fflush(stdout);
         auto c0 = std::chrono::high_resolution_clock::now();
-        caso3::ShannonFano<std::int64_t> sf_lineal(lineal_vector, 32);
+        caso3::ShannonFano<std::int64_t> sf_lineal(lineal.vector, 32);
         auto c1 = std::chrono::high_resolution_clock::now();
         std::println(" DONE.");
 
         std::print("CASE 3: (2/4): search ({}n): lineal distribution vector...",
-            UNIFORM_VECTOR_RANDOM_FROM_VECTOR_BINARY_SEARCH_COUNT); std::fflush(stdout);
+            LINEAL_VECTOR_RANDOM_FROM_VECTOR_BINARY_SEARCH_COUNT); std::fflush(stdout);
         auto c2 = std::chrono::high_resolution_clock::now();
-        for (int i = 0; i < UNIFORM_VECTOR_RANDOM_FROM_VECTOR_BINARY_SEARCH_COUNT; i++)
-            sf_lineal.buscar(lineal_vector[rand() % lineal_vector.size()]);
+        for (int i = 0; i < LINEAL_VECTOR_RANDOM_FROM_VECTOR_BINARY_SEARCH_COUNT; i++)
+            sf_lineal.buscar(lineal.vector[rand() % lineal.vector.size()]);
         auto c3 = std::chrono::high_resolution_clock::now();
         std::println(" DONE.");
 
@@ -269,7 +263,7 @@ int main(int argc, char** argv) {
         std::println("Build (Shannon-Fano):             {}ms", sf_lineal_build_time);
         std::println("Search:                           {}ms", sf_lineal_search_time);
         std::println("Space (compressed):               {} bits", sf_lineal.espacio_bits());
-        std::println("Space (explicit):                 {} bits", (std::uint64_t) lineal_vector.size() * 64);
+        std::println("Space (explicit):                 {} bits", (std::uint64_t) lineal.vector.size() * 64);
         std::println("(Normal distribution vector)");
         std::println("Build (Shannon-Fano):             {}ms", sf_normal_build_time);
         std::println("Search:                           {}ms", sf_normal_search_time);
@@ -281,9 +275,9 @@ int main(int argc, char** argv) {
         // al inicio del benchmark para que los 3 escriban en el mismo archivo.
         std::ofstream salida("salida.csv");
         salida << "tamano,distribucion,caso,construccion_ms,busqueda_ms,n_busquedas,espacio_bits,espacio_explicito_bits\n";
-        salida << lineal_vector.size() << ",lineal,3," << sf_lineal_build_time << ","
-               << sf_lineal_search_time << "," << UNIFORM_VECTOR_RANDOM_FROM_VECTOR_BINARY_SEARCH_COUNT << ","
-               << sf_lineal.espacio_bits() << "," << (std::uint64_t) lineal_vector.size() * 64 << "\n";
+        salida << lineal.vector.size() << ",lineal,3," << sf_lineal_build_time << ","
+               << sf_lineal_search_time << "," << LINEAL_VECTOR_RANDOM_FROM_VECTOR_BINARY_SEARCH_COUNT << ","
+               << sf_lineal.espacio_bits() << "," << (std::uint64_t) lineal.vector.size() * 64 << "\n";
         salida << normal.vector.size() << ",normal,3," << sf_normal_build_time << ","
                << sf_normal_search_time << "," << NORMAL_VECTOR_RANDOM_FROM_VECTOR_BINARY_SEARCH_COUNT << ","
                << sf_normal.espacio_bits() << "," << (std::uint64_t) normal.vector.size() * 64 << "\n";
@@ -317,7 +311,6 @@ int main(int argc, char** argv) {
                 std::println("{}: no encontrado ({} ns)", x, ns);
         }
 
-    
     } else if (argc == 4) {
         std::println("Complete mode");
         std::println("args: {}, {}", argv[1], argv[2]);
