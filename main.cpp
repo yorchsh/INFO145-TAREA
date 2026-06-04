@@ -2,7 +2,7 @@
 #include "include/vector_generation.hpp"
 #include "include/binary_search.hpp"
 #include "include/gap_coding.hpp"
-// #include "include/debug.hpp"
+#include "include/debug.hpp"
 
 #define UNIFORM_VECTOR_SIZE_IN_GIBIBYTE 0.1
 #define UNIFORM_VECTOR_SIZE_IN_MEBIBYTE UNIFORM_VECTOR_SIZE_IN_GIBIBYTE*1024
@@ -165,13 +165,15 @@ int main(int argc, char** argv) {
 
         ———————————————————————————————————————————————————————————————————————*/
 
-        std::print("CASE 2: (1/8): generating gap_coding array from: uniform distribution vector...");
+        std::print("CASE 2: (1/8): generating gap_coding array from: uniform distribution vector..."); std::fflush(stdout);
         t0 = std::chrono::high_resolution_clock::now();
         gap_coding::GapArray gp_uniform(uniform.vector, 1000);
         t1 = std::chrono::high_resolution_clock::now();
         uniform.gap_coding_gen_time = std::chrono::duration_cast<std::chrono::milliseconds>(t1-t0).count();
+        std::println(" DONE.");
 
         // Código para debugear
+        
         /*
         for (int i = 0; i < 10; i++) {
         std::print("{}, ", uniform.vector[i]);
@@ -187,7 +189,10 @@ int main(int argc, char** argv) {
         
         
         std::println("VECTOR[i] vs GAP CODING get(i):");
-        for (int i = 0; i < 2000; i++) {
+        for (int i = 0; i < 3; i++) {
+            std::println("{}: {} | {}, ", i, uniform.vector[i], gp_uniform.get(i));
+        }
+        for (int i = 1001; i < 1004; i++) {
             std::println("{}: {} | {}, ", i, uniform.vector[i], gp_uniform.get(i));
         }
         std::println();
@@ -210,10 +215,10 @@ int main(int argc, char** argv) {
         std::println("GAPS: ");
         debug::printGaps(uniform.vector, 10);
         debug::printBitsString(gp_uniform.gap.array, 10);
-        */
+        
 
 
-
+    */
     } else if (argc == 4) {
         std::println("Complete mode");
         std::println("args: {}, {}", argv[1], argv[2]);
