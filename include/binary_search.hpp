@@ -26,12 +26,29 @@ namespace bin_search {
     template<typename T>
     std::uint64_t gapSearch(gap_coding::GapArray<T>& gap_coding, T var) {
         // Retorna indice
-        std::uint64_t index = std::lower_bound(gap_coding.sample.start, gap_coding.sample.end, var) - gap_coding.sample.start;
-        if (index != gap_coding.sample.size) {
-
-        }
+        // Busqueda binaria en sample
+        std::uint64_t index = std::upper_bound(gap_coding.sample.start, gap_coding.sample.end, var) - gap_coding.sample.start;
         
-        return index;
+        if (index <= gap_coding.sample.size) {
+            index -= 1;
+            
+            if (index >= 0) {
+                T computed_value = gap_coding.sample.array[index];
+                index *= (gap_coding.sample.jump_length + 1);
+
+                // Búsqueda Lineal en gaps
+                while (index < gap_coding.gap.size && computed_value < var) {
+                    index +=1 ;
+                    computed_value += gap_coding.get_gap(index);
+                }
+
+                if (index < gap_coding.gap.size && computed_value == var) {
+                    return index;
+                }
+            }
+        }
+        // Retorna el tamaño del gap si no encuentra el elemento
+        return gap_coding.gap.size;
     }
 
     
