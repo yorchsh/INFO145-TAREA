@@ -25,23 +25,14 @@
 
 int main(int argc, char** argv) {
 
-    if (argc < 2 || argc > 4) {
-        std::println("Usage:");
-        std::println("Benchmark mode: ./main --benchmark");
-        std::println("File mode: ./main -i <absolute file path>");
-        std::println("Benchmark mode: Automatic");
-        std::println("File mode: CSV file with user given array.");
-        return 1;
-    }
-
-    if (argc == 2 && strncmp(argv[1], "--benchmark", 11) == 0) {
+    if (argc == 4 && strncmp(argv[1], "--benchmark", 11) == 0 && strncmp(argv[2], "-o", 2) == 0) {
         std::println("%%%%%%%%%%%%%%%%%%%%%%%%%");
         std::println("%%                     %%");
         std::println("%%   BENCHMARK MODE    %%");
         std::println("%%                     %%");
         std::println("%%%%%%%%%%%%%%%%%%%%%%%%%");
 
-        std::ofstream salida("salida.csv");
+        std::ofstream salida(argv[3]);
 
         salida << "SETTINGS" << "\n";
         salida << "RANDOM_BINARY_SEARCH_COUNT," << LINEAL_VECTOR_RANDOM_BINARY_SEARCH_COUNT << "\n\n";
@@ -49,7 +40,7 @@ int main(int argc, char** argv) {
         salida << "LINEAL_VECTOR" << "\n\n";
         salida << "size_MiB,";
         salida << "gen_time_ms,sort_time_ms,true_search_time_ms,true_search_found,true_search_not_found,select_search_time_ms,select_search_found,select_search_not_found,";
-        salida << "gap_coding_gen_time, gap_coding_word_size, gap_coding_total_bits, gap_coding_search_time_ms";
+        salida << "gap_coding_gen_time, gap_coding_word_size, gap_coding_total_bits, gap_coding_sample_size_bits, gap_coding_search_time_ms";
         salida << "shannon_fano_gen_time_ms,shannon_fano_search_time_ms,space_bits_compressed,space_bits_explicit";
         salida << "\n";
 
@@ -57,12 +48,13 @@ int main(int argc, char** argv) {
 
 
         for (auto& vector_size: VECTOR_SIZES_MEBIBYTE) {
-
+            salida << vector_size << ",";
+            
             std::print("CASE 1: (1/4): generate: lineal distribution vector ({} mebibytes)...",
                 vector_size); std::fflush(stdout);
             
             auto t0 = std::chrono::high_resolution_clock::now();
-            auto lineal_vector = vec_gen::linealVector<int64_t>(vector_size, EPSILON);
+            auto lineal_vector = vec_gen::linealVector<int64_t>(vector_size * LINEAL_VECTOR_SIZE, EPSILON);
             auto t1 = std::chrono::high_resolution_clock::now();
             std::println(" DONE.");
             auto lineal_gen_time = std::chrono::duration_cast<std::chrono::milliseconds>(t1-t0).count();
@@ -103,6 +95,12 @@ int main(int argc, char** argv) {
             auto lineal_gap_coding_gen_time = std::chrono::duration_cast<std::chrono::milliseconds>(t1-t0).count();
             std::println(" DONE.");
 
+            salida << lineal_gap_coding_gen_time << ",";
+            salida << lineal_gap_coding.gap.word_size << ",";
+            salida << lineal_gap_coding.gap.word_size * lineal_vector.size() << ",";
+            salida << lineal_gap_coding.sample.size * 64 << ",";
+
+
             std::print("CASE 3: (1/2): build Shannon-Fano: lineal distribution vector..."); std::fflush(stdout);
             t0 = std::chrono::high_resolution_clock::now();
             caso3::ShannonFano<std::int64_t> sf_lineal(lineal_vector);
@@ -128,8 +126,13 @@ int main(int argc, char** argv) {
 
         }
 
-    } else if (argc == 3 && strncmp(argv[1], "-i", 2) == 0) {
+    } else if (argc == 4 && strncmp(argv[1], "-i", 2) == 0 && strncmp(argv[2], "-o", 2) == 0) {
         // CASE 3 modo archivo: construye Shannon-Fano desde el CSV y busca interactivo
+        std::println("%%%%%%%%%%%%%%%%%%%%%%%%%");
+        std::println("%%                     %%");
+        std::println("%%      FILE MODE      %%");
+        std::println("%%                     %%");
+        std::println("%%%%%%%%%%%%%%%%%%%%%%%%%");
         std::vector<std::int64_t> datos = csv::read<std::int64_t>(argv[2]);
         if (datos.empty()) {
             std::println("El archivo no tiene numeros validos o no se pudo abrir.");
@@ -142,6 +145,7 @@ int main(int argc, char** argv) {
 
         std::string linea;
         while (std::getline(std::cin, linea)) {
+            
             if (linea == "q" || linea == "Q") break;
             if (linea.empty()) continue;
 
@@ -157,9 +161,14 @@ int main(int argc, char** argv) {
                 std::println("{}: no encontrado ({} ns)", x, ns);
         }
 
-    } else if (argc == 4) {
-        std::println("Complete mode");
-        std::println("args: {}, {}", argv[1], argv[2]);
+    } else {
+        std::println("Usage:");
+        std::println("Benchmark mode: ./main --benchmark -o <absolute file path>");
+        std::println("File mode: ./main -i <absolute file path> -o <absolute file path>");
+        std::println("Where -o is the output of the program");
+        std::println("Benchmark mode: Automatic");
+        std::println("File mode: CSV file with user given array.");
+        return 1;
     }
 
 
