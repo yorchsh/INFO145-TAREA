@@ -23,6 +23,7 @@
 llamando a ShannonFano::buscar, tipo el stub gapBinSearch del Caso 2.
 
 - Falta ShannonFano crea el gap_array de nuevo, shannonFano deberia ser construido con el gap_array pasado como paremetro.
+- Falta arreglar binary_search Shannonfanon usar trueRandom y selectRandom en un archivo aparte.
 
 [Notas para mí (creo)]
 1. Modo -i solo busca en Caso 3. El PDF pide que el usuario elija "en qué estructura" (Caso 1/2/3). Falta cuando Caso 2 esté listo.
