@@ -57,7 +57,7 @@ Modo benchmark:
 ```bash
 ./main --benchmark -o <archivo_csv_de_salida.csv>
 ```
-
+Modo archivo:
 ```bash
   ./main -i \<archivo\> -c <número_caso>
 ```
