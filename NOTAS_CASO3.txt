@@ -13,18 +13,18 @@
 
 2. Cosas del Caso 3 que coordinar:
 
-- CSV de salida:
-  Hay que agregar las filas de Caso 1 y Caso 2. subí el ofstream ya que
-  si cada uno lo abre por su lado, se pisan el contenido.
-  Columnas que usa:
-    tamano,distribucion,caso,construccion_ms,busqueda_ms,n_busquedas,
-    espacio_bits,espacio_explicito_bits
+- CSV de salida
 
 - Benchmark: el benchmark actual usa millones de elementos.
   El Caso 3 arma una tabla (map) con los gaps distintos; con datos de gaps
-  chicos está bien, pero conviene revisar la escala/memoria al integrar.
+  chicos está bien, pero conviene revisar la escala/memoria al integrar. [Por revisar]
 
 - Aparte, para el benchmark, sigue faltando una funcion que mida N busquedas
   llamando a ShannonFano::buscar, tipo el stub gapBinSearch del Caso 2.
 
-- README: falta documentar todo
+1. Modo -i solo busca en Caso 3. El PDF pide que el usuario elija "en qué estructura" (Caso 1/2/3). Falta cuando Caso 2 esté listo.
+2.Benchmark corre UN solo tamaño. El PDF (metodología) pide tamaños incrementales (10⁶, 10⁷…) — necesario para los gráficos del Hito 2.
+3. README es plantilla: falta documentar modos, rango de números (int64 / strtoll) y salida. Es requisito explícito del Hito 1.
+4. (Latente) GapArray sin constructor de copia (regla de 3) → riesgo de doble-free si se copia.
+5. El benchmark corre completo (Caso 1, 2, 3) y la compresión lineal funciona (601024 vs 3200000 bits). Pero el modo -i no imprimió nada
+El -i construye ShannonFano(datos) sobre las 20 filas de entrada.csv.
