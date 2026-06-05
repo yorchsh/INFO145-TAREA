@@ -2,7 +2,7 @@
 #include "include/vector_generation.hpp"
 #include "include/binary_search.hpp"
 #include "include/gap_coding.hpp"
-// #include "include/shannon_fano.hpp"
+#include "include/shannon_fano.hpp"
 #include "include/csv.hpp"
 #include "include/debug.hpp"
 
