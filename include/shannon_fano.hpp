@@ -2,7 +2,7 @@
 
 #include <bits/stdc++.h>
 #include "gap_coding.hpp"
-#include "binary_search_sf.hpp" // esperando binary_search...
+#include "binary_search.hpp"
 
 // Caso 3: compresion del arreglo de gaps con Shannon-Fano.
 // Los gaps se guardan como codigos de largo variable, empaquetados bit a bit en un
@@ -79,7 +79,7 @@ namespace caso3 {
 
             // Busca x. Devuelve su posicion en el arreglo ordenado, o -1 si no esta.
             std::int64_t buscar(T x) {
-                std::int64_t i = binary_search_sf::bloque(muestra_vals, x);
+                std::int64_t i = bin_search::vecSearch(muestra_vals, x);
                 if (i < 0) {
                     return -1;
                 }
