@@ -8,19 +8,14 @@
         arriba con los otros vectores y se genera al INICIO del benchmark; la
         normal la comparte con Casos 1 y 2 (normal_vector)
       * la escritura de salida.csv (SOLO las filas con caso=3, ver punto 2)
-      * el modo archivo: rama "argc == 3 && -i" que lee un csv, construye la
-        estructura y busca de forma interactiva (reporta posicion + tiempo).
-        Este modo es OBLIGATORIO según el Hito 1, por eso se deja.
+
     Casos 1 y 2 están tal cual estaban
 
 2. Cosas del Caso 3 que coordinar:
 
-- CSV de salida: bloque del Caso 3 abre
-      std::ofstream salida("salida.csv");
-  DENTRO de la seccion Caso 3 y escribe solo las filas con caso=3.
-  Hay que agregar las filas de Caso 1 y Caso 2. Lo ideal es SUBIR ese
-  ofstream al inicio del benchmark para que los 3 casos escriban en el
-  mismo archivo (si cada uno lo abre por su lado, se pisan el contenido).
+- CSV de salida:
+  Hay que agregar las filas de Caso 1 y Caso 2. subí el ofstream ya que
+  si cada uno lo abre por su lado, se pisan el contenido.
   Columnas que usa:
     tamano,distribucion,caso,construccion_ms,busqueda_ms,n_busquedas,
     espacio_bits,espacio_explicito_bits
