@@ -75,8 +75,8 @@ int main(int argc, char** argv) {
 
         std::ofstream salida("salida.csv");
 
-        salida << "Lineal Vector,,,,,,,,,," << "\n";
-        salida << "size (MiB),gen_time (ms)," << "\n";
+        salida << "Lineal Vector" << "\n\n";
+        salida << "size (MiB),gen_time (ms),sort_time (ms),true_search_time (ms), true_search_found, true_search_not_found, select_search_time (ms), select_search_found, select_search_not_found" << "\n";
 
         std::vector<std::uint64_t> VECTOR_SIZES_MEBIBYTE = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024];
 
@@ -112,6 +112,16 @@ int main(int argc, char** argv) {
                 LINEAL_VECTOR_RANDOM_FROM_VECTOR_BINARY_SEARCH_COUNT);
             std::println(" DONE.");
 
+            salida << lineal.gen_time << ",";
+            salida << lineal.sort_time << ",";
+            salida << lineal.true_results.time << ",";
+            salida << lineal.true_results.found << ",";
+            salida << lineal.true_results.not_found << ",";
+            salida << lineal.select_results.time << ",";
+            salida << lineal.select_results.found << ",";
+            salida << lineal.select_results.not_found << ",";
+            salida << "n";
+
             gapCodingData case_2;
 
 
@@ -121,6 +131,8 @@ int main(int argc, char** argv) {
             t1 = std::chrono::high_resolution_clock::now();
             lineal.gap_coding_gen_time = std::chrono::duration_cast<std::chrono::milliseconds>(t1-t0).count();
             std::println(" DONE.");
+
+            salida << lineal
         }
 
         vectorData lineal;
