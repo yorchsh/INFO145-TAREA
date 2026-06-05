@@ -52,7 +52,7 @@ int main(int argc, char** argv) {
         std::println("%%                     %%");
         std::println("%%%%%%%%%%%%%%%%%%%%%%%%%");
 
-
+        std::ofstream salida("salida.csv");
         /*———————————————————————————————————————————————————————————————————————
             
             %%%%%%%%%      %%%%%%      %%%%%%%%%%   %%%%%%%%%%       %%%%
@@ -270,10 +270,7 @@ int main(int argc, char** argv) {
         std::println("Space (compressed):               {} bits", sf_normal.espacio_bits());
         std::println("Space (explicit):                 {} bits", (std::uint64_t) normal.vector.size() * 64);
 
-        // guardamos las metricas del Caso 3 en el csv (lo pide el Hito 1).
-        // Jorge: agrega aca las filas de Caso 1 y 2, o mejor sube este ofstream
-        // al inicio del benchmark para que los 3 escriban en el mismo archivo.
-        std::ofstream salida("salida.csv");
+        // escribimos en salida.csv
         salida << "tamano,distribucion,caso,construccion_ms,busqueda_ms,n_busquedas,espacio_bits,espacio_explicito_bits\n";
         salida << lineal.vector.size() << ",lineal,3," << sf_lineal_build_time << ","
                << sf_lineal_search_time << "," << LINEAL_VECTOR_RANDOM_FROM_VECTOR_BINARY_SEARCH_COUNT << ","
