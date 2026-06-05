@@ -20,18 +20,18 @@ namespace bin_search {
         // Retorna indice
         // Busqueda binaria en sample
         std::int64_t index = std::upper_bound(gap_coding.sample.begin, gap_coding.sample.end, var) - gap_coding.sample.begin;
-        
-        if (index <= gap_coding.sample.size) {
+
+        if (index <= static_cast<std::int64_t>(gap_coding.sample.size)) {
             index -= 1;
-            
+
             if (index >= 0) {
                 T computed_value = gap_coding.sample.array[index];
-                index *= (gap_coding.sample.jump_length + 1);
+                index *= static_cast<std::int64_t>(gap_coding.sample.jump_length + 1);
 
                 // Búsqueda Lineal en gaps
                 index += 1;
-                while (index < gap_coding.gap.size && computed_value < var) {
-                    computed_value += gap_coding.get_gap(index);
+                while (index < static_cast<std::int64_t>(gap_coding.gap.size) && computed_value < var) {
+                    computed_value += gap_coding.get_gap(static_cast<std::uint64_t>(index));
                     index += 1;
                 }
 
