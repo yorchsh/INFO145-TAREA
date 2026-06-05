@@ -2,7 +2,6 @@
 
 #include <bits/stdc++.h>
 #include "gap_coding.hpp"
-// #include "shannon_fano.hpp"
 
 namespace bin_search {
     using namespace std;
@@ -15,14 +14,6 @@ namespace bin_search {
 
     static random_device rd;
     static mt19937 generator(rd());
-
-    template<typename T>
-    std::int64_t vecSearch(std::vector<T>& v, T var) {
-        // Indice de la mayor v[i] <= var (o -1 si var es menor que todo).
-        // Lo usa el sample del Caso 3 (Shannon-Fano) para arrancar a decodificar.
-        auto iterator = std::upper_bound(v.begin(), v.end(), var);
-        return (iterator - v.begin()) - 1;
-    }
 
     template<typename T>
     std::int64_t gapSearch(gap_coding::GapArray<T>& gap_coding, T var) {
@@ -106,31 +97,6 @@ namespace bin_search {
         results.time /= 1000*1000; // Pasar a milisegundos
         return results;
     }
-
-    /*
-    template<typename T>
-    resultsData selectRandom(caso3::ShannonFano<T>& shannon_fano, gap_coding::GapArray<T>& gap_coding, int count) {
-        // Descripción: Hace count busquedas binarias con numeros del shannon fano tomados del mismo gap coding
-        resultsData results;
-        uniform_int_distribution<T> distribution(0, gap_coding.gap.size - 1);
-
-        for (int i = 0; i < count; i++) {
-            T rand = gap_coding.get(distribution(generator));
-            auto t0 = chrono::high_resolution_clock::now();
-            std::int64_t index = shannon_fano.buscar(rand);
-            auto t1 = chrono::high_resolution_clock::now();
-            results.time += chrono::duration_cast<chrono::nanoseconds>(t1-t0).count(); 
-            
-            if (index != -1)
-                results.found++;
-            else
-                results.not_found++;
-        }
-
-        results.time /= 1000*1000; // Pasar a milisegundos
-        return results;
-    }
-    */
 
     template<typename T>
     resultsData selectRandom(gap_coding::GapArray<T>& gap_coding, int count) {
