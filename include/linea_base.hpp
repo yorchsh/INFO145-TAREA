@@ -1,20 +1,16 @@
 #pragma once
 
 // Caso 1: (Linea Base).
-// El arreglo ordenado se almacena directamente como std::vector<T>.
-// La busqueda usa std::binary_search / std::lower_bound de la biblioteca estandar.
 
 #include "binary_search.hpp"
 
 namespace caso1 {
 
-    // Ordena el vector en su lugar. Debe llamarse antes de buscar.
     template<typename T>
     void construir(std::vector<T>& v) {
         std::sort(v.begin(), v.end());
     }
 
-    // Busca x en el vector ordenado. Devuelve su posicion (0-indexed) o -1 si no esta.
     template<typename T>
     std::int64_t buscar(std::vector<T>& v, T x) {
         auto it = std::lower_bound(v.begin(), v.end(), x);
