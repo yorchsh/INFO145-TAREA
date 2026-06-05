@@ -271,6 +271,7 @@ int main(int argc, char** argv) {
         std::println("Space (explicit):                 {} bits", (std::uint64_t) normal.vector.size() * 64);
 
         // escribimos en salida.csv
+        salida << "caso3: shannon-fano\n";
         salida << "tamano,distribucion,caso,construccion_ms,busqueda_ms,n_busquedas,espacio_bits,espacio_explicito_bits\n";
         salida << lineal.vector.size() << ",lineal,3," << sf_lineal_build_time << ","
                << sf_lineal_search_time << "," << LINEAL_VECTOR_RANDOM_FROM_VECTOR_BINARY_SEARCH_COUNT << ","
