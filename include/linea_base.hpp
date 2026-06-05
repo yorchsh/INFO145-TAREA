@@ -3,12 +3,6 @@
 // Caso 1: (Linea Base).
 // El arreglo ordenado se almacena directamente como std::vector<T>.
 // La busqueda usa std::binary_search / std::lower_bound de la biblioteca estandar.
-//
-// Construccion: sort(v.begin(), v.end())   -- O(n log n)
-// Busqueda: lower_bound(v.begin(), v.end(), x)  -- O(log n)
-//
-// Las funciones de medicion de N busquedas (trueRandom y selectRandom para vector)
-// estan en binary_search.hpp.
 
 #include "binary_search.hpp"
 
