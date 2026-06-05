@@ -30,7 +30,7 @@ namespace gap_coding {
                 std::uint64_t jump_length; // Tamaño del salto
             } sample;
             
-            GapArray(std::vector<T>& v, std::uint64_t sample_jump_length) {
+            GapArray(std::vector<T>& v) {
         
                 // Encontrar el máximo valor del gap coding
                 
@@ -65,7 +65,7 @@ namespace gap_coding {
                 sample.array = new T[sample.size];
                 sample.begin = &sample.array[0];
                 sample.end = &sample.array[sample.size];
-                sample.jump_length = sample_jump_length;
+                sample.jump_length = static_cast<std::uint64_t>(std::sqrt(v.size()));
 
                 // Preparar el Gap Array para almacenar el vector compactamente
                 gap.block_size = WORD_SIZE_BITS;

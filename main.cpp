@@ -6,7 +6,8 @@
 #include "include/csv.hpp"
 #include "include/debug.hpp"
 
-#define LINEAL_VECTOR_SIZE_IN_GIBIBYTE 0.1
+#define EPSILON 256
+#define LINEAL_VECTOR_SIZE_IN_GIBIBYTE 1.0
 #define LINEAL_VECTOR_SIZE_IN_MEBIBYTE LINEAL_VECTOR_SIZE_IN_GIBIBYTE*1024
 #define LINEAL_VECTOR_SIZE_IN_KIBIBYTE LINEAL_VECTOR_SIZE_IN_MEBIBYTE*1024
 #define LINEAL_VECTOR_SIZE_IN_BYTES LINEAL_VECTOR_SIZE_IN_KIBIBYTE*1024
@@ -28,10 +29,17 @@ struct vectorDataStruct {
     std::uint64_t gen_time; // Tiempo tomado en generar el vector
     std::uint64_t sort_time; // Tiempo tomado en ordenar el vector
     bin_search::resultsData true_results; // Resultados de la busqueda binaria de elementos al azar
-    bin_search::resultsData select_results; // Resultados de la busqueda binaria de 
-    std::uint64_t gap_coding_gen_time;
+    bin_search::resultsData select_results; // Resultados de la busqueda binaria de elementos tomados del mismo vector al azar
 }; 
 typedef struct vectorDataStruct vectorData;
+
+
+typedef struct gapCodingData {
+    gap_coding::GapArray gap_coding;
+    std::uint64_t gen_time;
+    bin_search::resultsData true_results // Resultados de la busqueda binaria de elementos al azar;
+    bin_search::resultsData select_results // Resultados de la busqueda binaria de elementos tomados del mismo vector al azar;
+}
 
 
 int main(int argc, char** argv) {
@@ -65,6 +73,55 @@ int main(int argc, char** argv) {
 
         ———————————————————————————————————————————————————————————————————————*/
 
+        std::ofstream salida("salida.csv");
+
+        salida << "Lineal Vector,,,,,,,,,," << "\n";
+        salida << "size (MiB),gen_time (ms)," << "\n";
+
+        std::vector<std::uint64_t> VECTOR_SIZES_MEBIBYTE = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024];
+
+
+        for (auto vector_size& : VECTOR_SIZES_MEBIBYTE) {
+            vectorData lineal;
+
+            std::print("CASE 1: (1/4): generate: lineal distribution vector ({} mebibytes)...",
+                vector_size); std::fflush(stdout);
+            
+            auto t0 = std::chrono::high_resolution_clock::now();
+            lineal.vector = vec_gen::linealVector<int64_t>(vector_size, EPSILON);
+            auto t1 = std::chrono::high_resolution_clock::now();
+            std::println(" DONE.");
+            lineal.gen_time = std::chrono::duration_cast<std::chrono::milliseconds>(t1-t0).count();
+
+            std::print("CASE 1: (2/4): sort: lineal distribution vector..."); std::fflush(stdout);
+            t0 = std::chrono::high_resolution_clock::now();
+            sort(lineal.vector.begin(), lineal.vector.end());
+            t1 = std::chrono::high_resolution_clock::now();
+            std::println(" DONE.");
+            lineal.sort_time = std::chrono::duration_cast<std::chrono::milliseconds>(t1-t0).count();
+
+            std::print("CASE 1: (3/4): random binary search ({}n): lineal distribution vector...",
+            LINEAL_VECTOR_RANDOM_BINARY_SEARCH_COUNT); std::fflush(stdout);
+            lineal.true_results = bin_search::trueRandom(lineal.vector, 
+                LINEAL_VECTOR_RANDOM_BINARY_SEARCH_COUNT);
+            std::println(" DONE.");
+
+            std::print("CASE 1: (4/4): random from vector binary search ({}n): lineal distribution vector...",
+            LINEAL_VECTOR_RANDOM_FROM_VECTOR_BINARY_SEARCH_COUNT); std::fflush(stdout);
+            lineal.select_results = bin_search::selectRandom(lineal.vector, 
+                LINEAL_VECTOR_RANDOM_FROM_VECTOR_BINARY_SEARCH_COUNT);
+            std::println(" DONE.");
+
+            gapCodingData case_2;
+
+
+            std::print("CASE 2: (1/8): generating gap_coding array from: lineal distribution vector..."); std::fflush(stdout);
+            t0 = std::chrono::high_resolution_clock::now();
+            case_2.gap_coding = gap_coding::GapArray(lineal.vector);
+            t1 = std::chrono::high_resolution_clock::now();
+            lineal.gap_coding_gen_time = std::chrono::duration_cast<std::chrono::milliseconds>(t1-t0).count();
+            std::println(" DONE.");
+        }
 
         vectorData lineal;
 
@@ -220,6 +277,17 @@ int main(int argc, char** argv) {
         
     */
 
+        /*———————————————————————————————————————————————————————————————————————
+            
+            %%%%%%%%%      %%%%%%      %%%%%%%%%%   %%%%%%%%%%    %%%%%%%%%%
+            %%           %%      %%    %%           %%                    %%
+            %%           %%      %%    %%           %%                    %%
+            %%           %%%%%%%%%%    %%%%%%%%%%   %%%%%%%%%%    %%%%%%%%%%
+            %%           %%      %%            %%   %%                    %%
+            %%           %%      %%            %%   %%                    %%
+            %%%%%%%%%    %%      %%    %%%%%%%%%%   %%%%%%%%%%    %%%%%%%%%%
+
+        ———————————————————————————————————————————————————————————————————————*/
         /*———————————————————————————————————————————————————————————————————————
         CASE 3 - Compresion Shannon-Fano sobre los gaps.
         El Caso 3 usa el vector lineal y normal de los Casos 1 y 2.

@@ -2,9 +2,11 @@
 
 #include <bits/stdc++.h>
 
-using namespace std;
+
 
 namespace vec_gen {
+    using namespace std;
+
     static random_device rd;
     static mt19937 generator(rd());
 
