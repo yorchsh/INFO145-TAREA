@@ -52,6 +52,31 @@ namespace bin_search {
     }
 
     
+    template<typename T>
+    resultsData trueRandom(gap_coding::GapArray<T>& gap_coding, int count) {
+        // Hace count busquedas binarias con numeros al azar en el vector v dado
+        resultsData results;
+        uniform_int_distribution<T> distribution(
+            numeric_limits<T>::min(),
+            numeric_limits<T>::max()
+        );
+        
+        for (int i = 0; i < count; i++) {
+            T rand = distribution(generator);
+            auto t0 = chrono::high_resolution_clock::now();
+            std::uint64_t index = gapSearch(gap_coding, rand);
+            auto t1 = chrono::high_resolution_clock::now();
+            results.time += chrono::duration_cast<chrono::nanoseconds>(t1-t0).count();
+            
+            if (index != gap_coding.gap.size)
+                results.found++;
+            else
+                results.not_found++;
+        }
+        
+        results.time /= 1000*1000; // Pasar a milisegundos
+        return results;
+    }
 
     template<typename T>
     resultsData trueRandom(vector<T>& v, int count) {
@@ -80,6 +105,30 @@ namespace bin_search {
     }
 
     template<typename T>
+    resultsData selectRandom(gap_coding::GapArray<T>& gap_coding, int count) {
+        // Descripción: Hace count busquedas binarias con numeros del vector v tomadas al azar en el mismo vector
+        
+        resultsData results;
+        uniform_int_distribution<T> distribution(0, gap_coding.gap.size - 1);
+
+        for (int i = 0; i < count; i++) {
+            T rand = gap_coding.get(distribution(generator));
+            auto t0 = chrono::high_resolution_clock::now();
+            std::uint64_t index = gapSearch(gap_coding, rand);
+            auto t1 = chrono::high_resolution_clock::now();
+            results.time += chrono::duration_cast<chrono::nanoseconds>(t1-t0).count(); 
+            
+            if (index != gap_coding.gap.size)
+                results.found++;
+            else
+                results.not_found++;
+        }
+
+        results.time /= 1000*1000; // Pasar a milisegundos
+        return results;
+    }
+
+    template<typename T>
     resultsData selectRandom(vector<T>& v, int count) {
         // Descripción: Hace count busquedas binarias con numeros del vector v tomadas al azar en el mismo vector
         
@@ -87,9 +136,9 @@ namespace bin_search {
         uniform_int_distribution<T> distribution(0, v.size()-1);
 
         for (int i = 0; i < count; i++) {
-            T rand = distribution(generator);
+            T rand = v[distribution(generator)];
             auto t0 = chrono::high_resolution_clock::now();
-            bool found = binary_search(v.begin(), v.end(), v[rand]);
+            bool found = binary_search(v.begin(), v.end(), rand);
             auto t1 = chrono::high_resolution_clock::now();
             results.time += chrono::duration_cast<chrono::nanoseconds>(t1-t0).count(); 
             

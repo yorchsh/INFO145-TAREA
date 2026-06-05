@@ -22,6 +22,80 @@
 #define NORMAL_VECTOR_RANDOM_BINARY_SEARCH_COUNT LINEAL_VECTOR_RANDOM_BINARY_SEARCH_COUNT
 #define NORMAL_VECTOR_RANDOM_FROM_VECTOR_BINARY_SEARCH_COUNT LINEAL_VECTOR_RANDOM_BINARY_SEARCH_COUNT
 
+void benchmark(std::ofstream salida, std::vector<T> v_vector, std::string vector_name, std::uint64_t vector_size_MiB, std::float64_t standard_deviation) {
+    salida << vector_size_MiB << ",";
+    if (standard_deviation >= 0) salida << standard_deviation << ",";
+
+    std::print("CASE 1: (2/4): sort: {} distribution vector...", vector_name); std::fflush(stdout);
+    t0 = std::chrono::high_resolution_clock::now();
+    sort(v_vector.begin(), v_vector.end());
+    t1 = std::chrono::high_resolution_clock::now();
+    std::println(" DONE.");
+    auto v_sort_time = std::chrono::duration_cast<std::chrono::milliseconds>(t1-t0).count();
+
+    std::print("CASE 1: (3/4): random binary search ({}n): {} distribution vector...",
+    LINEAL_VECTOR_RANDOM_BINARY_SEARCH_COUNT, vector_name); std::fflush(stdout);
+    auto v_true_results = bin_search::trueRandom(v, 
+        LINEAL_VECTOR_RANDOM_BINARY_SEARCH_COUNT);
+    std::println(" DONE.");
+
+    std::print("CASE 1: (4/4): random from vector binary search ({}n): {} distribution vector...",
+    LINEAL_VECTOR_RANDOM_FROM_VECTOR_BINARY_SEARCH_COUNT, vector_name); std::fflush(stdout);
+    auto v_select_results = bin_search::selectRandom(v_vector, 
+        LINEAL_VECTOR_RANDOM_FROM_VECTOR_BINARY_SEARCH_COUNT);
+    std::println(" DONE.");
+
+    salida << v_gen_time << ",";
+    salida << v_sort_time << ",";
+    salida << v_true_results.time << ",";
+    salida << v_true_results.found << ",";
+    salida << v_true_results.not_found << ",";
+    salida << v_select_results.time << ",";
+    salida << v_select_results.found << ",";
+    salida << v_select_results.not_found << ",";
+
+    std::print("CASE 2: (1/3): generating gap_coding array from: {} distribution vector...", vector_name); std::fflush(stdout);
+    t0 = std::chrono::high_resolution_clock::now();
+    gap_coding::GapArray v_gap_coding(v_vector);
+    t1 = std::chrono::high_resolution_clock::now();
+    auto v_gap_coding_gen_time = std::chrono::duration_cast<std::chrono::milliseconds>(t1-t0).count();
+    std::println(" DONE.");
+
+    salida << v_gap_coding_gen_time << ",";
+    salida << v_gap_coding.gap.word_size << ",";
+    salida << v_gap_coding.gap.word_size * v_vector.size() << ",";
+    salida << v_gap_coding.sample.size * 64 << ",";
+
+            /*
+            std::print("CASE 3: (1/2): build Shannon-Fano: lineal distribution vector..."); std::fflush(stdout);
+            t0 = std::chrono::high_resolution_clock::now();
+            caso3::ShannonFano<std::int64_t> sf_lineal(lineal_vector);
+            t1 = std::chrono::high_resolution_clock::now();
+            std::println(" DONE.");
+            auto sf_lineal_build_time = std::chrono::duration_cast<std::chrono::milliseconds>(t1-t0).count();
+
+            std::print("CASE 3: (2/2): search ({}n): lineal distribution vector...",
+            LINEAL_VECTOR_RANDOM_FROM_VECTOR_BINARY_SEARCH_COUNT); std::fflush(stdout);
+            t0 = std::chrono::high_resolution_clock::now();
+            for (int i = 0; i < LINEAL_VECTOR_RANDOM_FROM_VECTOR_BINARY_SEARCH_COUNT; i++)
+                sf_lineal.buscar(lineal_vector[rand() % lineal_vector.size()]);
+            t1 = std::chrono::high_resolution_clock::now();
+            std::println(" DONE.");
+            auto sf_lineal_search_time = std::chrono::duration_cast<std::chrono::milliseconds>(t1-t0).count();
+
+            salida << sf_lineal_build_time << ",";
+            salida << sf_lineal_search_time << ",";
+            salida << sf_lineal.espacio_bits() << ","; 
+            salida << (std::uint64_t) lineal_vector.size() * 64;
+            */
+            salida << "\n";
+            
+}
+
+void benchmark(std::ofstream salida, std::vector<T> v, std::string vector_name, std::uint64_t vector_size_MiB) {
+    benchmark(salida, v, vector_name, vector_size_MiB, -1.0);
+}
+
 
 int main(int argc, char** argv) {
 
