@@ -1,4 +1,5 @@
 #include <bits/stdc++.h>
+#include "include/linea_base.hpp"
 #include "include/vector_generation.hpp"
 #include "include/binary_search.hpp"
 #include "include/gap_coding.hpp"
@@ -114,14 +115,19 @@ void benchmark(std::ofstream& salida, std::vector<T>& v, std::string vector_name
 
 
 int main(int argc, char** argv) {
-    if (argc == 4 && strncmp(argv[1], "--benchmark", 11) == 0 && strncmp(argv[2], "-o", 2) == 0) {
+    bool es_benchmark = (argc == 2 && strncmp(argv[1], "--benchmark", 11) == 0) ||
+                        (argc == 4 && strncmp(argv[1], "--benchmark", 11) == 0 && strncmp(argv[2], "-o", 2) == 0);
+
+    if (es_benchmark) {
         std::println("%%%%%%%%%%%%%%%%%%%%%%%%%");
         std::println("%%                     %%");
         std::println("%%   BENCHMARK MODE    %%");
         std::println("%%                     %%");
         std::println("%%%%%%%%%%%%%%%%%%%%%%%%%");
 
-        std::ofstream salida(argv[3]);
+        const std::string output_path = (argc == 4) ? argv[3] : "salida.csv";
+        std::println("Salida: {}", output_path);
+        std::ofstream salida(output_path);
 
         salida << "SETTINGS" << "\n";
         salida << "RANDOM_BINARY_SEARCH_COUNT," << LINEAL_VECTOR_RANDOM_BINARY_SEARCH_COUNT << "\n\n";
@@ -130,8 +136,8 @@ int main(int argc, char** argv) {
         salida << "size_MiB,";
         writeHeader(salida);
         salida << "\n";
-        std::vector<std::uint64_t> VECTOR_SIZES_MEBIBYTE = {64};
-        // std::vector<std::uint64_t> VECTOR_SIZES_MEBIBYTE = {64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1024};
+        // ~10^6, ~10^7, ~10^8 elementos (8 bytes/elem). Ajustar segun RAM y tiempo disponibles.
+        std::vector<std::uint64_t> VECTOR_SIZES_MEBIBYTE = {8, 76, 763};
 
         for (auto& vector_size_MiB: VECTOR_SIZES_MEBIBYTE) {
             salida << vector_size_MiB << ",";
@@ -183,58 +189,100 @@ int main(int argc, char** argv) {
 
         
 
-    } else if (argc == 5 && strncmp(argv[1], "-i", 2) == 0 && strncmp(argv[3], "-o", 2) == 0) {
-        // CASE 3 modo archivo: construye Shannon-Fano desde el CSV y busca interactivo
+    } else if ((argc == 5 && strncmp(argv[1], "-i", 2) == 0 && strncmp(argv[3], "-c", 2) == 0) ||
+               (argc == 3 && strncmp(argv[1], "-i", 2) == 0)) {
         std::println("%%%%%%%%%%%%%%%%%%%%%%%%%");
         std::println("%%                     %%");
         std::println("%%      FILE MODE      %%");
         std::println("%%                     %%");
         std::println("%%%%%%%%%%%%%%%%%%%%%%%%%");
-        
+
+        int caso = 0;
+        if (argc == 5) {
+            caso = std::atoi(argv[4]);
+        } else {
+            std::println("Seleccione estructura a usar:");
+            std::println("  1: Representacion explicita (busqueda binaria estandar)");
+            std::println("  2: Gap Coding");
+            std::println("  3: Shannon-Fano");
+            std::string eleccion;
+            std::getline(std::cin, eleccion);
+            caso = std::atoi(eleccion.c_str());
+        }
+
+        if (caso < 1 || caso > 3) {
+            std::println("Caso invalido: ingrese 1, 2 o 3.");
+            return 1;
+        }
+
         std::vector<std::int64_t> datos = csv::read<std::int64_t>(argv[2]);
         if (datos.empty()) {
             std::println("El archivo no tiene numeros validos o no se pudo abrir.");
             return 1;
         }
+        std::sort(datos.begin(), datos.end());
 
-        caso3::ShannonFano<std::int64_t> estructura(datos);
-        std::println("Construido con {} elementos. Ingrese valores a buscar, 'q' para salir:",
-            datos.size());
-
-        std::string linea;
-        while (std::getline(std::cin, linea)) {
-            
-            if (linea == "q" || linea == "Q") break;
-            if (linea.empty()) continue;
-
-            std::int64_t x = std::strtoll(linea.c_str(), nullptr, 10);
-            auto a = std::chrono::high_resolution_clock::now();
-            std::int64_t pos = estructura.buscar(x);
-            auto b = std::chrono::high_resolution_clock::now();
-            auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>(b - a).count();
-
+        auto buscar_e_imprimir = [](std::int64_t x, std::int64_t pos, long long ns) {
             if (pos >= 0)
                 std::println("{}: encontrado en posicion {} ({} ns)", x, pos, ns);
             else
                 std::println("{}: no encontrado ({} ns)", x, ns);
+        };
+
+        std::string linea;
+
+        if (caso == 1) {
+            std::println("Caso 1 (busqueda binaria explicita). {} elementos. Ingrese valores, 'q' para salir:", datos.size());
+            while (std::getline(std::cin, linea)) {
+                if (linea == "q" || linea == "Q") break;
+                if (linea.empty()) continue;
+                std::int64_t x = std::strtoll(linea.c_str(), nullptr, 10);
+                auto a = std::chrono::high_resolution_clock::now();
+                auto it = std::lower_bound(datos.begin(), datos.end(), x);
+                std::int64_t pos = (it != datos.end() && *it == x) ? (std::int64_t)(it - datos.begin()) : -1;
+                auto b = std::chrono::high_resolution_clock::now();
+                buscar_e_imprimir(x, pos, std::chrono::duration_cast<std::chrono::nanoseconds>(b - a).count());
+            }
+
+        } else if (caso == 2) {
+            std::print("Construyendo Gap Coding..."); std::fflush(stdout);
+            gap_coding::GapArray<std::int64_t> estructura(datos);
+            std::println(" listo. {} elementos. Ingrese valores, 'q' para salir:", datos.size());
+            while (std::getline(std::cin, linea)) {
+                if (linea == "q" || linea == "Q") break;
+                if (linea.empty()) continue;
+                std::int64_t x = std::strtoll(linea.c_str(), nullptr, 10);
+                auto a = std::chrono::high_resolution_clock::now();
+                std::int64_t pos = bin_search::gapSearch(estructura, x);
+                auto b = std::chrono::high_resolution_clock::now();
+                buscar_e_imprimir(x, pos, std::chrono::duration_cast<std::chrono::nanoseconds>(b - a).count());
+            }
+
+        } else {
+            std::print("Construyendo Shannon-Fano..."); std::fflush(stdout);
+            caso3::ShannonFano<std::int64_t> estructura(datos);
+            std::println(" listo. {} elementos. Ingrese valores, 'q' para salir:", datos.size());
+            while (std::getline(std::cin, linea)) {
+                if (linea == "q" || linea == "Q") break;
+                if (linea.empty()) continue;
+                std::int64_t x = std::strtoll(linea.c_str(), nullptr, 10);
+                auto a = std::chrono::high_resolution_clock::now();
+                std::int64_t pos = estructura.buscar(x);
+                auto b = std::chrono::high_resolution_clock::now();
+                buscar_e_imprimir(x, pos, std::chrono::duration_cast<std::chrono::nanoseconds>(b - a).count());
+            }
         }
-        
+
     } else {
-        std::println("Usage:");
-        std::println("Benchmark mode: ./main --benchmark -o <absolute file path>");
-        std::println("File mode: ./main -i <absolute file path> -o <absolute file path>");
-        std::println("Where -o is the output of the program");
-        std::println("Benchmark mode: Automatic");
-        std::println("File mode: CSV file with user given array.");
+        std::println("Uso:");
+        std::println("  Benchmark: ./main --benchmark");
+        std::println("             ./main --benchmark -o <archivo_salida.csv>   (salida.csv por defecto)");
+        std::println("  Archivo:   ./main -i <archivo.csv>");
+        std::println("             ./main -i <archivo.csv> -c <caso>");
+        std::println("             donde <caso> es 1 (explicito), 2 (gap coding) o 3 (shannon-fano)");
+        std::println("Numeros aceptados: int64_t [-9223372036854775808, 9223372036854775807] (strtoll)");
         return 1;
     }
 
-
-    
-    /*std::println("First 10 elements of the sorted vector: ");
-    for (int i = 0; i < min(10, (int) vec.size()); i++) {
-        std::print("{}, ", vec[i]);
-    }
-    std::println(); */
     return 0;
 }
