@@ -62,7 +62,7 @@ namespace gap_coding {
 
                 // Preparar el sample
                 sample.jump_length = static_cast<std::uint64_t>(std::sqrt(v.size()));
-                sample.size = v.size() / (sample.jump_length + 1) + 1;
+                sample.size = (v.size() - 1) / (sample.jump_length + 1) + 1;
                 sample.array = new T[sample.size];
                 sample.begin = &sample.array[0];
                 sample.end = &sample.array[sample.size];
@@ -112,13 +112,20 @@ namespace gap_coding {
                     }
                 }
 
+                if (sample_pointer == sample.begin) sample_pointer++;
+                sample.end  = sample_pointer;
+                sample.size = static_cast<std::uint64_t>(sample_pointer - sample.begin);
+
             }
 
             ~GapArray() {
-                // Destructor
                 delete [] gap.array;
                 delete [] sample.array;
             }
+
+            // Sin copia: tiene destructor con delete[], copiar causaría doble-free.
+            GapArray(const GapArray&) = delete;
+            GapArray& operator=(const GapArray&) = delete;
             
             /* T get(std::uint64_t index) {
                 std::uint64_t sample_index = index/(sample.jump_length + 1);
@@ -181,9 +188,8 @@ namespace gap_coding {
                 T value = sample.array[sample_index];
                 
                 std::uint64_t sample_index_in_gap = sample_index * (sample.jump_length + 1);
-                std::uint64_t sample_index_bits = sample_index_in_gap * gap.word_size;
-                
-                for (std::uint64_t i = sample_index_in_gap+1; i <= index; i++) {
+
+                for (std::uint64_t i = sample_index_in_gap + 1; i <= index; i++) {
                     value += get_gap(i);
                 }
                 return value;
