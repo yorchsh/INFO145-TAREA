@@ -61,11 +61,12 @@ namespace gap_coding {
                 // cout << "gap word size: " << gap.word_size << endl;
 
                 // Preparar el sample
-                sample.size = v.size() / sample_jump_length + 1;
+                sample.jump_length = static_cast<std::uint64_t>(std::sqrt(v.size()));
+                sample.size = v.size() / (sample.jump_length + 1) + 1;
                 sample.array = new T[sample.size];
                 sample.begin = &sample.array[0];
                 sample.end = &sample.array[sample.size];
-                sample.jump_length = static_cast<std::uint64_t>(std::sqrt(v.size()));
+                
 
                 // Preparar el Gap Array para almacenar el vector compactamente
                 gap.block_size = WORD_SIZE_BITS;
