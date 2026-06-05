@@ -100,7 +100,6 @@ int main(int argc, char** argv) {
             salida << lineal_gap_coding.gap.word_size * lineal_vector.size() << ",";
             salida << lineal_gap_coding.sample.size * 64 << ",";
 
-            /*
             std::print("CASE 3: (1/2): build Shannon-Fano: lineal distribution vector..."); std::fflush(stdout);
             t0 = std::chrono::high_resolution_clock::now();
             caso3::ShannonFano<std::int64_t> sf_lineal(lineal_vector);
@@ -121,27 +120,26 @@ int main(int argc, char** argv) {
             salida << sf_lineal_search_time << ",";
             salida << sf_lineal.espacio_bits() << ","; 
             salida << (std::uint64_t) lineal_vector.size() * 64;
-            */
             salida << "\n";
             
 
         }
 
-    } else if (argc == 4 && strncmp(argv[1], "-i", 2) == 0 && strncmp(argv[2], "-o", 2) == 0) {
+    } else if (argc == 5 && strncmp(argv[1], "-i", 2) == 0 && strncmp(argv[3], "-o", 2) == 0) {
         // CASE 3 modo archivo: construye Shannon-Fano desde el CSV y busca interactivo
         std::println("%%%%%%%%%%%%%%%%%%%%%%%%%");
         std::println("%%                     %%");
         std::println("%%      FILE MODE      %%");
         std::println("%%                     %%");
         std::println("%%%%%%%%%%%%%%%%%%%%%%%%%");
+        
         std::vector<std::int64_t> datos = csv::read<std::int64_t>(argv[2]);
-        /*
         if (datos.empty()) {
             std::println("El archivo no tiene numeros validos o no se pudo abrir.");
             return 1;
         }
 
-        caso3::ShannonFano<std::int64_t> estructura(datos, 32);
+        caso3::ShannonFano<std::int64_t> estructura(datos);
         std::println("Construido con {} elementos. Ingrese valores a buscar, 'q' para salir:",
             datos.size());
 
@@ -162,7 +160,7 @@ int main(int argc, char** argv) {
             else
                 std::println("{}: no encontrado ({} ns)", x, ns);
         }
-        */
+        
     } else {
         std::println("Usage:");
         std::println("Benchmark mode: ./main --benchmark -o <absolute file path>");
