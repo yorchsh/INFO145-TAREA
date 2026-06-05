@@ -1,6 +1,8 @@
 #pragma once
 
 #include <bits/stdc++.h>
+#include "gap_coding.hpp"
+#include "binary_search_sf.hpp" // esperando binary_search...
 
 // Caso 3: compresion del arreglo de gaps con Shannon-Fano.
 // Los gaps se guardan como codigos de largo variable, empaquetados bit a bit en un
@@ -40,9 +42,11 @@ namespace caso3 {
                 std::sort(valores.begin(), valores.end());
 
                 // gaps
+                gap_coding::GapArray<T> gc(valores, saltos);
                 std::vector<T> gaps;
+                gaps.reserve(valores.size() > 0 ? valores.size() - 1 : 0);
                 for (std::uint64_t i = 1; i < valores.size(); i++) {
-                    gaps.push_back(valores[i] - valores[i - 1]);
+                    gaps.push_back(static_cast<T>(gc.get_gap(i)));
                 }
 
                 // cuantas veces aparece cada gap
@@ -75,7 +79,7 @@ namespace caso3 {
 
             // Busca x. Devuelve su posicion en el arreglo ordenado, o -1 si no esta.
             std::int64_t buscar(T x) {
-                std::int64_t i = encontrar_bloque(x);
+                std::int64_t i = binary_search_sf::bloque(muestra_vals, x);
                 if (i < 0) {
                     return -1;
                 }
@@ -156,21 +160,6 @@ namespace caso3 {
                 std::uint64_t idx = pos / 64;
                 std::uint64_t off = pos % 64;
                 return (bits[idx] >> (63 - off)) & 1ULL;
-            }
-
-            // busqueda binaria en el sample: la mayor muestra <= x (o -1 si x es menor que todo)
-            std::int64_t encontrar_bloque(T x) {
-                std::int64_t l = 0;
-                std::int64_t r = (std::int64_t) muestra_vals.size() - 1;
-                while (l <= r) {
-                    std::int64_t m = (l + r) / 2;
-                    if (muestra_vals[m] <= x) {
-                        l = m + 1;
-                    } else {
-                        r = m - 1;
-                    }
-                }
-                return r;
             }
 
             std::map<T, Codigo> shannon_fano_codigos(std::map<T, std::uint64_t>& frecuencias) {
