@@ -84,12 +84,12 @@ namespace bin_search {
         // Descripción: Hace count busquedas binarias con numeros del vector v tomadas al azar en el mismo vector
         
         resultsData results;
-        uniform_int_distribution<T> distribution(0, v.size());
+        uniform_int_distribution<T> distribution(0, v.size()-1);
 
         for (int i = 0; i < count; i++) {
             T rand = distribution(generator);
             auto t0 = chrono::high_resolution_clock::now();
-            bool found = binary_search(v.begin(), v.end(), rand);
+            bool found = binary_search(v.begin(), v.end(), v[rand]);
             auto t1 = chrono::high_resolution_clock::now();
             results.time += chrono::duration_cast<chrono::nanoseconds>(t1-t0).count(); 
             

@@ -57,8 +57,8 @@ namespace gap_coding {
                 }
                 gap.word_size += 1;
                 
-                // cout << "max: " << max << endl;
-                // cout << "gap word size: " << gap.word_size << endl;
+                std::cout << "max: " << max << std::endl;
+                std::cout << "gap word size: " << gap.word_size << std::endl;
 
                 // Preparar el sample
                 sample.jump_length = static_cast<std::uint64_t>(std::sqrt(v.size()));

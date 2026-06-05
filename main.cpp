@@ -2,12 +2,12 @@
 #include "include/vector_generation.hpp"
 #include "include/binary_search.hpp"
 #include "include/gap_coding.hpp"
-#include "include/shannon_fano.hpp"
+// #include "include/shannon_fano.hpp"
 #include "include/csv.hpp"
 #include "include/debug.hpp"
 
 #define EPSILON 256
-#define LINEAL_VECTOR_SIZE_IN_MEBIBYTE 1024
+#define LINEAL_VECTOR_SIZE_IN_MEBIBYTE 1
 #define LINEAL_VECTOR_SIZE_IN_KIBIBYTE LINEAL_VECTOR_SIZE_IN_MEBIBYTE*1024
 #define LINEAL_VECTOR_SIZE_IN_BYTES LINEAL_VECTOR_SIZE_IN_KIBIBYTE*1024
 #define LINEAL_VECTOR_SIZE LINEAL_VECTOR_SIZE_IN_BYTES/8
@@ -40,7 +40,7 @@ int main(int argc, char** argv) {
         salida << "LINEAL_VECTOR" << "\n\n";
         salida << "size_MiB,";
         salida << "gen_time_ms,sort_time_ms,true_search_time_ms,true_search_found,true_search_not_found,select_search_time_ms,select_search_found,select_search_not_found,";
-        salida << "gap_coding_gen_time, gap_coding_word_size, gap_coding_total_bits, gap_coding_sample_size_bits, gap_coding_search_time_ms";
+        salida << "gap_coding_gen_time,gap_coding_word_size,gap_coding_total_bits,gap_coding_sample_size_bits,gap_coding_search_time_ms,";
         salida << "shannon_fano_gen_time_ms,shannon_fano_search_time_ms,space_bits_compressed,space_bits_explicit";
         salida << "\n";
 
@@ -49,7 +49,7 @@ int main(int argc, char** argv) {
 
         for (auto& vector_size: VECTOR_SIZES_MEBIBYTE) {
             salida << vector_size << ",";
-            
+
             std::print("CASE 1: (1/4): generate: lineal distribution vector ({} mebibytes)...",
                 vector_size); std::fflush(stdout);
             
@@ -100,7 +100,7 @@ int main(int argc, char** argv) {
             salida << lineal_gap_coding.gap.word_size * lineal_vector.size() << ",";
             salida << lineal_gap_coding.sample.size * 64 << ",";
 
-
+            /*
             std::print("CASE 3: (1/2): build Shannon-Fano: lineal distribution vector..."); std::fflush(stdout);
             t0 = std::chrono::high_resolution_clock::now();
             caso3::ShannonFano<std::int64_t> sf_lineal(lineal_vector);
@@ -121,8 +121,9 @@ int main(int argc, char** argv) {
             salida << sf_lineal_search_time << ",";
             salida << sf_lineal.espacio_bits() << ","; 
             salida << (std::uint64_t) lineal_vector.size() * 64;
-            
+            */
             salida << "\n";
+            
 
         }
 
@@ -134,6 +135,7 @@ int main(int argc, char** argv) {
         std::println("%%                     %%");
         std::println("%%%%%%%%%%%%%%%%%%%%%%%%%");
         std::vector<std::int64_t> datos = csv::read<std::int64_t>(argv[2]);
+        /*
         if (datos.empty()) {
             std::println("El archivo no tiene numeros validos o no se pudo abrir.");
             return 1;
@@ -160,7 +162,7 @@ int main(int argc, char** argv) {
             else
                 std::println("{}: no encontrado ({} ns)", x, ns);
         }
-
+        */
     } else {
         std::println("Usage:");
         std::println("Benchmark mode: ./main --benchmark -o <absolute file path>");
