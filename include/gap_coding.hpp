@@ -57,8 +57,8 @@ namespace gap_coding {
                 }
                 gap.word_size += 1;
                 
-                std::cout << "max: " << max << std::endl;
-                std::cout << "gap word size: " << gap.word_size << std::endl;
+                // std::cout << "max: " << max << std::endl;
+                // std::cout << "gap word size: " << gap.word_size << std::endl;
 
                 // Preparar el sample
                 sample.jump_length = static_cast<std::uint64_t>(std::sqrt(v.size()));
@@ -119,8 +119,8 @@ namespace gap_coding {
                 delete [] gap.array;
                 delete [] sample.array;
             }
-
-            T get(std::uint64_t index) {
+            
+            /* T get(std::uint64_t index) {
                 std::uint64_t sample_index = index/(sample.jump_length + 1);
                 T value = sample.array[sample_index];
                 
@@ -153,7 +153,7 @@ namespace gap_coding {
                     }
                 }
                 return value;
-            }
+            } */
 
             std::uint64_t get_gap(std::uint64_t index) {
                 std::uint64_t bits = index * gap.word_size;
@@ -176,5 +176,17 @@ namespace gap_coding {
                 return value;
             }
 
+            T get(std::uint64_t index) {
+                std::uint64_t sample_index = index/(sample.jump_length + 1);
+                T value = sample.array[sample_index];
+                
+                std::uint64_t sample_index_in_gap = sample_index * (sample.jump_length + 1);
+                std::uint64_t sample_index_bits = sample_index_in_gap * gap.word_size;
+                
+                for (std::uint64_t i = sample_index_in_gap+1; i <= index; i++) {
+                    value += get_gap(i);
+                }
+                return value;
+            }
     };
 }

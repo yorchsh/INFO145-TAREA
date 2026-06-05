@@ -2,6 +2,7 @@
 
 #include <bits/stdc++.h>
 #include "gap_coding.hpp"
+// #include "shannon_fano.hpp"
 
 namespace bin_search {
     using namespace std;
@@ -24,10 +25,10 @@ namespace bin_search {
     }
 
     template<typename T>
-    std::uint64_t gapSearch(gap_coding::GapArray<T>& gap_coding, T var) {
+    std::int64_t gapSearch(gap_coding::GapArray<T>& gap_coding, T var) {
         // Retorna indice
         // Busqueda binaria en sample
-        std::uint64_t index = std::upper_bound(gap_coding.sample.start, gap_coding.sample.end, var) - gap_coding.sample.start;
+        std::int64_t index = std::upper_bound(gap_coding.sample.begin, gap_coding.sample.end, var) - gap_coding.sample.begin;
         
         if (index <= gap_coding.sample.size) {
             index -= 1;
@@ -37,18 +38,20 @@ namespace bin_search {
                 index *= (gap_coding.sample.jump_length + 1);
 
                 // Búsqueda Lineal en gaps
+                index += 1;
                 while (index < gap_coding.gap.size && computed_value < var) {
-                    index +=1 ;
                     computed_value += gap_coding.get_gap(index);
+                    index +=1;
+
                 }
 
-                if (index < gap_coding.gap.size && computed_value == var) {
+                if (index < (std::int64_t) gap_coding.gap.size && computed_value == var) {
                     return index;
                 }
             }
         }
-        // Retorna el tamaño del gap si no encuentra el elemento
-        return gap_coding.gap.size;
+        // Retorna -1 si no encuentra el elemento
+        return -1;
     }
 
     
@@ -64,11 +67,11 @@ namespace bin_search {
         for (int i = 0; i < count; i++) {
             T rand = distribution(generator);
             auto t0 = chrono::high_resolution_clock::now();
-            std::uint64_t index = gapSearch(gap_coding, rand);
+            std::int64_t index = gapSearch(gap_coding, rand);
             auto t1 = chrono::high_resolution_clock::now();
             results.time += chrono::duration_cast<chrono::nanoseconds>(t1-t0).count();
             
-            if (index != gap_coding.gap.size)
+            if (index != -1)
                 results.found++;
             else
                 results.not_found++;
@@ -104,9 +107,34 @@ namespace bin_search {
         return results;
     }
 
+    /*
+    template<typename T>
+    resultsData selectRandom(caso3::ShannonFano<T>& shannon_fano, gap_coding::GapArray<T>& gap_coding, int count) {
+        // Descripción: Hace count busquedas binarias con numeros del shannon fano tomados del mismo gap coding
+        resultsData results;
+        uniform_int_distribution<T> distribution(0, gap_coding.gap.size - 1);
+
+        for (int i = 0; i < count; i++) {
+            T rand = gap_coding.get(distribution(generator));
+            auto t0 = chrono::high_resolution_clock::now();
+            std::int64_t index = shannon_fano.buscar(rand);
+            auto t1 = chrono::high_resolution_clock::now();
+            results.time += chrono::duration_cast<chrono::nanoseconds>(t1-t0).count(); 
+            
+            if (index != -1)
+                results.found++;
+            else
+                results.not_found++;
+        }
+
+        results.time /= 1000*1000; // Pasar a milisegundos
+        return results;
+    }
+    */
+
     template<typename T>
     resultsData selectRandom(gap_coding::GapArray<T>& gap_coding, int count) {
-        // Descripción: Hace count busquedas binarias con numeros del vector v tomadas al azar en el mismo vector
+        // Descripción: Hace count busquedas binarias con numeros del vgap coding tomados del mismo gap coding
         
         resultsData results;
         uniform_int_distribution<T> distribution(0, gap_coding.gap.size - 1);
@@ -114,11 +142,11 @@ namespace bin_search {
         for (int i = 0; i < count; i++) {
             T rand = gap_coding.get(distribution(generator));
             auto t0 = chrono::high_resolution_clock::now();
-            std::uint64_t index = gapSearch(gap_coding, rand);
+            std::int64_t index = gapSearch(gap_coding, rand);
             auto t1 = chrono::high_resolution_clock::now();
             results.time += chrono::duration_cast<chrono::nanoseconds>(t1-t0).count(); 
             
-            if (index != gap_coding.gap.size)
+            if (index != -1)
                 results.found++;
             else
                 results.not_found++;

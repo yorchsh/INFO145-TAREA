@@ -7,14 +7,14 @@
 #include "include/debug.hpp"
 
 #define EPSILON 256
+#define CPU_WORD_SIZE 64
 #define LINEAL_VECTOR_SIZE_IN_MEBIBYTE 1
 #define LINEAL_VECTOR_SIZE_IN_KIBIBYTE LINEAL_VECTOR_SIZE_IN_MEBIBYTE*1024
 #define LINEAL_VECTOR_SIZE_IN_BYTES LINEAL_VECTOR_SIZE_IN_KIBIBYTE*1024
 #define LINEAL_VECTOR_SIZE LINEAL_VECTOR_SIZE_IN_BYTES/8
-#define LINEAL_VECTOR_RANDOM_BINARY_SEARCH_COUNT 1024*1024
+#define LINEAL_VECTOR_RANDOM_BINARY_SEARCH_COUNT 512*512
 #define LINEAL_VECTOR_RANDOM_FROM_VECTOR_BINARY_SEARCH_COUNT LINEAL_VECTOR_RANDOM_BINARY_SEARCH_COUNT
 
-#define NORMAL_VECTOR_STANDARD_DEVIATION 1.0
 #define NORMAL_VECTOR_SIZE_IN_MEBIBYTE LINEAL_VECTOR_SIZE_IN_MEBIBYTE
 #define NORMAL_VECTOR_SIZE_IN_KIBIBYTE NORMAL_VECTOR_SIZE_IN_MEBIBYTE*1024
 #define NORMAL_VECTOR_SIZE_IN_BYTES NORMAL_VECTOR_SIZE_IN_KIBIBYTE*1024
@@ -22,30 +22,38 @@
 #define NORMAL_VECTOR_RANDOM_BINARY_SEARCH_COUNT LINEAL_VECTOR_RANDOM_BINARY_SEARCH_COUNT
 #define NORMAL_VECTOR_RANDOM_FROM_VECTOR_BINARY_SEARCH_COUNT LINEAL_VECTOR_RANDOM_BINARY_SEARCH_COUNT
 
-void benchmark(std::ofstream salida, std::vector<T> v_vector, std::string vector_name, std::uint64_t vector_size_MiB, std::float64_t standard_deviation) {
-    salida << vector_size_MiB << ",";
-    if (standard_deviation >= 0) salida << standard_deviation << ",";
 
-    std::print("CASE 1: (2/4): sort: {} distribution vector...", vector_name); std::fflush(stdout);
-    t0 = std::chrono::high_resolution_clock::now();
-    sort(v_vector.begin(), v_vector.end());
-    t1 = std::chrono::high_resolution_clock::now();
+
+void writeHeader(std::ofstream& salida) {
+    salida << "gen_time_ms,sort_time_ms,true_search_time_ms,true_search_found,true_search_not_found,select_search_time_ms,select_search_found,select_search_not_found,";
+    salida << "gc_gen_time,gc_word_size,gc_total_bits,gc_sample_size_bits,"
+            << "gc_true_search_time_ms,gc_true_search_found,gc_true_search_not_found,"
+            << "gc_select_search_time_ms,gc_select_search_found,gc_select_search_not_found,";
+    salida << "sf_gen_time_ms,sf_search_time_ms,space_bits_compressed,space_bits_explicit";
+}
+
+template <typename T>
+void benchmark(std::ofstream& salida, std::vector<T>& v, std::string vector_name, std::uint64_t vector_size_MiB) {
+
+    std::print("    CASE 1: (2/4): sort: {} distribution vector...", vector_name); std::fflush(stdout);
+    auto t0 = std::chrono::high_resolution_clock::now();
+    sort(v.begin(), v.end());
+    auto t1 = std::chrono::high_resolution_clock::now();
     std::println(" DONE.");
     auto v_sort_time = std::chrono::duration_cast<std::chrono::milliseconds>(t1-t0).count();
 
-    std::print("CASE 1: (3/4): random binary search ({}n): {} distribution vector...",
+    std::print("    CASE 1: (3/4): random binary search ({}n): {} distribution vector...",
     LINEAL_VECTOR_RANDOM_BINARY_SEARCH_COUNT, vector_name); std::fflush(stdout);
     auto v_true_results = bin_search::trueRandom(v, 
         LINEAL_VECTOR_RANDOM_BINARY_SEARCH_COUNT);
     std::println(" DONE.");
 
-    std::print("CASE 1: (4/4): random from vector binary search ({}n): {} distribution vector...",
+    std::print("    CASE 1: (4/4): random from vector binary search ({}n): {} distribution vector...",
     LINEAL_VECTOR_RANDOM_FROM_VECTOR_BINARY_SEARCH_COUNT, vector_name); std::fflush(stdout);
-    auto v_select_results = bin_search::selectRandom(v_vector, 
+    auto v_select_results = bin_search::selectRandom(v, 
         LINEAL_VECTOR_RANDOM_FROM_VECTOR_BINARY_SEARCH_COUNT);
     std::println(" DONE.");
 
-    salida << v_gen_time << ",";
     salida << v_sort_time << ",";
     salida << v_true_results.time << ",";
     salida << v_true_results.found << ",";
@@ -54,51 +62,62 @@ void benchmark(std::ofstream salida, std::vector<T> v_vector, std::string vector
     salida << v_select_results.found << ",";
     salida << v_select_results.not_found << ",";
 
-    std::print("CASE 2: (1/3): generating gap_coding array from: {} distribution vector...", vector_name); std::fflush(stdout);
+    std::print("    CASE 2: (1/3): generating gap_coding array from: {} distribution vector...", vector_name); std::fflush(stdout);
     t0 = std::chrono::high_resolution_clock::now();
-    gap_coding::GapArray v_gap_coding(v_vector);
+    gap_coding::GapArray v_gap_coding(v);
     t1 = std::chrono::high_resolution_clock::now();
     auto v_gap_coding_gen_time = std::chrono::duration_cast<std::chrono::milliseconds>(t1-t0).count();
     std::println(" DONE.");
 
+    std::print("    CASE 2: (2/3): random binary search: {} gap_coding...", vector_name); std::fflush(stdout);
+    auto v_gap_coding_true_results = bin_search::trueRandom(v_gap_coding, 
+        LINEAL_VECTOR_RANDOM_FROM_VECTOR_BINARY_SEARCH_COUNT);
+    std::println(" DONE.");
+
+    std::print("    CASE 2: (3/3): random from gap_coding binary search: {} gap_coding...", vector_name); std::fflush(stdout);
+    auto v_gap_coding_select_results = bin_search::selectRandom(v_gap_coding, 
+        LINEAL_VECTOR_RANDOM_FROM_VECTOR_BINARY_SEARCH_COUNT);
+    std::println(" DONE.");
+    
     salida << v_gap_coding_gen_time << ",";
     salida << v_gap_coding.gap.word_size << ",";
-    salida << v_gap_coding.gap.word_size * v_vector.size() << ",";
-    salida << v_gap_coding.sample.size * 64 << ",";
+    salida << v_gap_coding.gap.word_size * v.size() << ",";
+    salida << v_gap_coding.sample.size * CPU_WORD_SIZE << ",";
+    salida << v_gap_coding_true_results.time << ",";
+    salida << v_gap_coding_true_results.found << ",";
+    salida << v_gap_coding_true_results.not_found << ",";
+    salida << v_gap_coding_select_results.time << ",";
+    salida << v_gap_coding_select_results.found << ",";
+    salida << v_gap_coding_select_results.not_found << ",";
 
-            /*
-            std::print("CASE 3: (1/2): build Shannon-Fano: lineal distribution vector..."); std::fflush(stdout);
-            t0 = std::chrono::high_resolution_clock::now();
-            caso3::ShannonFano<std::int64_t> sf_lineal(lineal_vector);
-            t1 = std::chrono::high_resolution_clock::now();
-            std::println(" DONE.");
-            auto sf_lineal_build_time = std::chrono::duration_cast<std::chrono::milliseconds>(t1-t0).count();
-
-            std::print("CASE 3: (2/2): search ({}n): lineal distribution vector...",
-            LINEAL_VECTOR_RANDOM_FROM_VECTOR_BINARY_SEARCH_COUNT); std::fflush(stdout);
-            t0 = std::chrono::high_resolution_clock::now();
-            for (int i = 0; i < LINEAL_VECTOR_RANDOM_FROM_VECTOR_BINARY_SEARCH_COUNT; i++)
-                sf_lineal.buscar(lineal_vector[rand() % lineal_vector.size()]);
-            t1 = std::chrono::high_resolution_clock::now();
-            std::println(" DONE.");
-            auto sf_lineal_search_time = std::chrono::duration_cast<std::chrono::milliseconds>(t1-t0).count();
-
-            salida << sf_lineal_build_time << ",";
-            salida << sf_lineal_search_time << ",";
-            salida << sf_lineal.espacio_bits() << ","; 
-            salida << (std::uint64_t) lineal_vector.size() * 64;
-            */
-            salida << "\n";
             
-}
+    std::print("    CASE 3: (1/2): build Shannon-Fano: {} distribution vector...", vector_name); std::fflush(stdout);
+    t0 = std::chrono::high_resolution_clock::now();
+    caso3::ShannonFano<std::int64_t> sf_v(v);
+    t1 = std::chrono::high_resolution_clock::now();
+    std::println(" DONE.");
+    auto sf_v_build_time = std::chrono::duration_cast<std::chrono::milliseconds>(t1-t0).count();
 
-void benchmark(std::ofstream salida, std::vector<T> v, std::string vector_name, std::uint64_t vector_size_MiB) {
-    benchmark(salida, v, vector_name, vector_size_MiB, -1.0);
+    std::print("    CASE 3: (2/2): search ({}n): {} distribution vector...",
+    LINEAL_VECTOR_RANDOM_FROM_VECTOR_BINARY_SEARCH_COUNT, vector_name); std::fflush(stdout);
+    t0 = std::chrono::high_resolution_clock::now();
+    for (int i = 0; i < LINEAL_VECTOR_RANDOM_FROM_VECTOR_BINARY_SEARCH_COUNT; i++)
+        sf_v.buscar(v[rand() % v.size()]);
+    t1 = std::chrono::high_resolution_clock::now();
+    std::println(" DONE.");
+    auto sf_v_search_time = std::chrono::duration_cast<std::chrono::milliseconds>(t1-t0).count();
+
+    salida << sf_v_build_time << ",";
+    salida << sf_v_search_time << ",";
+    salida << sf_v.espacio_bits() << ","; 
+    salida << (std::uint64_t) v.size() * 64;
+            
+    salida << "\n";
+            
 }
 
 
 int main(int argc, char** argv) {
-
     if (argc == 4 && strncmp(argv[1], "--benchmark", 11) == 0 && strncmp(argv[2], "-o", 2) == 0) {
         std::println("%%%%%%%%%%%%%%%%%%%%%%%%%");
         std::println("%%                     %%");
@@ -111,93 +130,62 @@ int main(int argc, char** argv) {
         salida << "SETTINGS" << "\n";
         salida << "RANDOM_BINARY_SEARCH_COUNT," << LINEAL_VECTOR_RANDOM_BINARY_SEARCH_COUNT << "\n\n";
 
-        salida << "LINEAL_VECTOR" << "\n\n";
+        salida << "LINEAL_VECTOR" << "\n";
         salida << "size_MiB,";
-        salida << "gen_time_ms,sort_time_ms,true_search_time_ms,true_search_found,true_search_not_found,select_search_time_ms,select_search_found,select_search_not_found,";
-        salida << "gap_coding_gen_time,gap_coding_word_size,gap_coding_total_bits,gap_coding_sample_size_bits,gap_coding_search_time_ms,";
-        salida << "shannon_fano_gen_time_ms,shannon_fano_search_time_ms,space_bits_compressed,space_bits_explicit";
+        writeHeader(salida);
         salida << "\n";
+        std::vector<std::uint64_t> VECTOR_SIZES_MEBIBYTE = {64};
+        // std::vector<std::uint64_t> VECTOR_SIZES_MEBIBYTE = {64, 128, 192, 256, 320, 384, 448, 512, 576, 640, 704, 768, 832, 896, 960, 1024};
 
-        std::vector<std::uint64_t> VECTOR_SIZES_MEBIBYTE = {1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024};
-
-
-        for (auto& vector_size: VECTOR_SIZES_MEBIBYTE) {
-            salida << vector_size << ",";
+        for (auto& vector_size_MiB: VECTOR_SIZES_MEBIBYTE) {
+            salida << vector_size_MiB << ",";
 
             std::print("CASE 1: (1/4): generate: lineal distribution vector ({} mebibytes)...",
-                vector_size); std::fflush(stdout);
+                vector_size_MiB); std::fflush(stdout);
             
             auto t0 = std::chrono::high_resolution_clock::now();
-            auto lineal_vector = vec_gen::linealVector<int64_t>(vector_size * LINEAL_VECTOR_SIZE, EPSILON);
+            auto lineal_vector = vec_gen::linealVector<int64_t>(vector_size_MiB * LINEAL_VECTOR_SIZE, EPSILON);
             auto t1 = std::chrono::high_resolution_clock::now();
             std::println(" DONE.");
             auto lineal_gen_time = std::chrono::duration_cast<std::chrono::milliseconds>(t1-t0).count();
 
-            std::print("CASE 1: (2/4): sort: lineal distribution vector..."); std::fflush(stdout);
-            t0 = std::chrono::high_resolution_clock::now();
-            sort(lineal_vector.begin(), lineal_vector.end());
-            t1 = std::chrono::high_resolution_clock::now();
-            std::println(" DONE.");
-            auto lineal_sort_time = std::chrono::duration_cast<std::chrono::milliseconds>(t1-t0).count();
-
-            std::print("CASE 1: (3/4): random binary search ({}n): lineal distribution vector...",
-            LINEAL_VECTOR_RANDOM_BINARY_SEARCH_COUNT); std::fflush(stdout);
-            auto lineal_true_results = bin_search::trueRandom(lineal_vector, 
-                LINEAL_VECTOR_RANDOM_BINARY_SEARCH_COUNT);
-            std::println(" DONE.");
-
-            std::print("CASE 1: (4/4): random from vector binary search ({}n): lineal distribution vector...",
-            LINEAL_VECTOR_RANDOM_FROM_VECTOR_BINARY_SEARCH_COUNT); std::fflush(stdout);
-            auto lineal_select_results = bin_search::selectRandom(lineal_vector, 
-                LINEAL_VECTOR_RANDOM_FROM_VECTOR_BINARY_SEARCH_COUNT);
-            std::println(" DONE.");
-
             salida << lineal_gen_time << ",";
-            salida << lineal_sort_time << ",";
-            salida << lineal_true_results.time << ",";
-            salida << lineal_true_results.found << ",";
-            salida << lineal_true_results.not_found << ",";
-            salida << lineal_select_results.time << ",";
-            salida << lineal_select_results.found << ",";
-            salida << lineal_select_results.not_found << ",";
-            salida << "n";
-
-            std::print("CASE 2: (1/3): generating gap_coding array from: lineal distribution vector..."); std::fflush(stdout);
-            t0 = std::chrono::high_resolution_clock::now();
-            gap_coding::GapArray lineal_gap_coding(lineal_vector);
-            t1 = std::chrono::high_resolution_clock::now();
-            auto lineal_gap_coding_gen_time = std::chrono::duration_cast<std::chrono::milliseconds>(t1-t0).count();
-            std::println(" DONE.");
-
-            salida << lineal_gap_coding_gen_time << ",";
-            salida << lineal_gap_coding.gap.word_size << ",";
-            salida << lineal_gap_coding.gap.word_size * lineal_vector.size() << ",";
-            salida << lineal_gap_coding.sample.size * 64 << ",";
-
-            std::print("CASE 3: (1/2): build Shannon-Fano: lineal distribution vector..."); std::fflush(stdout);
-            t0 = std::chrono::high_resolution_clock::now();
-            caso3::ShannonFano<std::int64_t> sf_lineal(lineal_vector);
-            t1 = std::chrono::high_resolution_clock::now();
-            std::println(" DONE.");
-            auto sf_lineal_build_time = std::chrono::duration_cast<std::chrono::milliseconds>(t1-t0).count();
-
-            std::print("CASE 3: (2/2): search ({}n): lineal distribution vector...",
-            LINEAL_VECTOR_RANDOM_FROM_VECTOR_BINARY_SEARCH_COUNT); std::fflush(stdout);
-            t0 = std::chrono::high_resolution_clock::now();
-            for (int i = 0; i < LINEAL_VECTOR_RANDOM_FROM_VECTOR_BINARY_SEARCH_COUNT; i++)
-                sf_lineal.buscar(lineal_vector[rand() % lineal_vector.size()]);
-            t1 = std::chrono::high_resolution_clock::now();
-            std::println(" DONE.");
-            auto sf_lineal_search_time = std::chrono::duration_cast<std::chrono::milliseconds>(t1-t0).count();
-
-            salida << sf_lineal_build_time << ",";
-            salida << sf_lineal_search_time << ",";
-            salida << sf_lineal.espacio_bits() << ","; 
-            salida << (std::uint64_t) lineal_vector.size() * 64;
-            salida << "\n";
-            
+            benchmark(salida, lineal_vector, "lineal", vector_size_MiB);
 
         }
+
+        salida << "\n\n";
+
+        salida << "NORMAL_VECTOR" << "\n";
+        salida << "size_MiB,standard_deviation_sigma,";
+        writeHeader(salida);
+        salida << "\n";
+
+        std::vector<std::float64_t> STANDARD_DEVIATIONS = {1, 2, 3, 4};
+
+        // std::vector<std::float64_t> STANDARD_DEVIATIONS = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+
+        for (auto& vector_size_MiB: VECTOR_SIZES_MEBIBYTE) {
+            for (auto& standard_deviation: STANDARD_DEVIATIONS) {
+                salida << vector_size_MiB << ",";
+                salida << standard_deviation << ",";
+
+                std::print("CASE 1: (1/4): generate: normal distribution vector ({} mebibytes, {} sigma)...",
+                    vector_size_MiB, standard_deviation); std::fflush(stdout);
+                
+                auto t0 = std::chrono::high_resolution_clock::now();
+                auto lineal_vector = vec_gen::normalVector<int64_t>(vector_size_MiB * LINEAL_VECTOR_SIZE, standard_deviation);
+                auto t1 = std::chrono::high_resolution_clock::now();
+                std::println(" DONE.");
+                auto lineal_gen_time = std::chrono::duration_cast<std::chrono::milliseconds>(t1-t0).count();
+
+                salida << lineal_gen_time << ",";
+                benchmark(salida, lineal_vector, "normal", vector_size_MiB);
+            }
+
+        }
+
+        
 
     } else if (argc == 5 && strncmp(argv[1], "-i", 2) == 0 && strncmp(argv[3], "-o", 2) == 0) {
         // CASE 3 modo archivo: construye Shannon-Fano desde el CSV y busca interactivo
