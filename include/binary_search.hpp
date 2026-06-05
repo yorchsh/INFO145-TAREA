@@ -32,12 +32,11 @@ namespace bin_search {
                 index += 1;
                 while (index < gap_coding.gap.size && computed_value < var) {
                     computed_value += gap_coding.get_gap(index);
-                    index +=1;
-
+                    index += 1;
                 }
 
-                if (index < (std::int64_t) gap_coding.gap.size && computed_value == var) {
-                    return index;
+                if (computed_value == var) {
+                    return index - 1;
                 }
             }
         }
