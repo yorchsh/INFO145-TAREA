@@ -10,7 +10,7 @@
 
 El programa mide una cantidad absurda de datos en el modo benchmark:
 - size_MiB: tamaño del vector original en Mebibytes
-- standard_deviation: si es aplicable, desviación estándar del vector normal
+- standard_deviation_sigma: si es aplicable, desviación estándar del vector normal
 Para el caso 1 (vector original):
 - gen_time_ms: Tiempo de generación del vector en milisegundos
 - sort_time_ms: Tiempo que tomo en ordernarse el vector
