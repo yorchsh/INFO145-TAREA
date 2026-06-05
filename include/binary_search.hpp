@@ -16,23 +16,17 @@ namespace bin_search {
     static mt19937 generator(rd());
 
     template<typename T>
-    std::uint64_t vecSearch(std::vector<T>& v, T var) {
-        // iterator apunta al elemento que sea >= var
-        auto iterator = std::lower_bound(v.begin(), v.end(), var);
-
-        if ((iterator != v.end()) && (*iterator == var)) {
-            // Retorna el indice donde debería estar el elemento
-            return iterator-v.begin();
-        }
-        // Retorna el tamaño del vector si no encuentra el elemento
-        return v.size();
-        
+    std::int64_t vecSearch(std::vector<T>& v, T var) {
+        // Indice de la mayor v[i] <= var (o -1 si var es menor que todo).
+        // Lo usa el sample del Caso 3 (Shannon-Fano) para arrancar a decodificar.
+        auto iterator = std::upper_bound(v.begin(), v.end(), var);
+        return (iterator - v.begin()) - 1;
     }
 
     template<typename T>
     std::uint64_t gapSearch(gap_coding::GapArray<T>& gap_coding, T var) {
         // Retorna indice
-        std::uint64_t index = std::lower_bound(gap_coding.sample.start, gap_coding.sample.end, var) - gap.coding.sample.start;
+        std::uint64_t index = std::lower_bound(gap_coding.sample.start, gap_coding.sample.end, var) - gap_coding.sample.start;
         if (index != gap_coding.sample.size) {
 
         }
