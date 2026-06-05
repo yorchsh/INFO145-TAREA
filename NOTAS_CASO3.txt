@@ -20,7 +20,9 @@
   chicos está bien, pero conviene revisar la escala/memoria al integrar. [Por revisar]
 
 - Aparte, para el benchmark, sigue faltando una funcion que mida N busquedas
-  llamando a ShannonFano::buscar, tipo el stub gapBinSearch del Caso 2.
+llamando a ShannonFano::buscar, tipo el stub gapBinSearch del Caso 2.
+
+- Falta ShannonFano crea el gap_array de nuevo, shannonFano deberia ser construido con el gap_array pasado como paremetro.
 
 [Notas para mí (creo)]
 1. Modo -i solo busca en Caso 3. El PDF pide que el usuario elija "en qué estructura" (Caso 1/2/3). Falta cuando Caso 2 esté listo.
@@ -29,3 +31,4 @@
 4. (Latente) GapArray sin constructor de copia (regla de 3) riesgo de doble-free si se copia.
 5. El benchmark corre completo (Caso 1, 2, 3) y la compresión lineal funciona (601024 vs 3200000 bits). Pero el modo -i no imprimió nada
 El -i construye ShannonFano(datos) sobre las 20 filas de entrada.csv.
+
