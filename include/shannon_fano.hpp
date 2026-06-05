@@ -34,15 +34,15 @@ namespace caso3 {
             std::uint64_t saltos;
             std::uint64_t total_elementos;
 
-            ShannonFano(std::vector<T> valores, std::uint64_t saltos) {
-                this->saltos = saltos;
+            ShannonFano(std::vector<T> valores) {
+                this->saltos = static_cast<std::uint64_t>(std::sqrt(std::max<std::size_t>(1, valores.size())));
                 this->total_elementos = valores.size();
                 this->total_bits = 0;
 
                 std::sort(valores.begin(), valores.end());
 
                 // gaps
-                gap_coding::GapArray<T> gc(valores, saltos);
+                gap_coding::GapArray<T> gc(valores);
                 std::vector<T> gaps;
                 gaps.reserve(valores.size() > 0 ? valores.size() - 1 : 0);
                 for (std::uint64_t i = 1; i < valores.size(); i++) {
