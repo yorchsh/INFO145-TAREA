@@ -4,7 +4,6 @@
 #include "include/gap_coding.hpp"
 #include "include/shannon_fano.hpp"
 #include "include/csv.hpp"
-#include "include/debug.hpp"
 
 #define EPSILON 256
 #define CPU_WORD_SIZE 64
@@ -100,12 +99,9 @@ void benchmark(std::ofstream& salida, std::vector<T>& v, std::string vector_name
 
     std::print("    CASE 3: (2/2): search ({}n): {} distribution vector...",
     LINEAL_VECTOR_RANDOM_FROM_VECTOR_BINARY_SEARCH_COUNT, vector_name); std::fflush(stdout);
-    t0 = std::chrono::high_resolution_clock::now();
-    for (int i = 0; i < LINEAL_VECTOR_RANDOM_FROM_VECTOR_BINARY_SEARCH_COUNT; i++)
-        sf_v.buscar(v[rand() % v.size()]);
-    t1 = std::chrono::high_resolution_clock::now();
+    auto sf_v_results = binary_search_sf::sfSelectRandom(sf_v, v, LINEAL_VECTOR_RANDOM_FROM_VECTOR_BINARY_SEARCH_COUNT);
     std::println(" DONE.");
-    auto sf_v_search_time = std::chrono::duration_cast<std::chrono::milliseconds>(t1-t0).count();
+    auto sf_v_search_time = sf_v_results.time;
 
     salida << sf_v_build_time << ",";
     salida << sf_v_search_time << ",";
