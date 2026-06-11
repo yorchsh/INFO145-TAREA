@@ -22,7 +22,7 @@ Para el caso 1 (vector original):
 - select_search_not_found: Las veces que no se encontro el elemento en el vector
 
 Para el caso 2 (gap coding):
-- gc_gen_time_ms: Tiempo que tomo generar el gap coding a partir del vector
+- gc_gen_time: Tiempo (ms) que tomo generar el gap coding a partir del vector
 - gc_word_size: Tamaño virtual de los gaps en bits
 - gc_total_bits: cantidad de bits totales que se usa para almacenar los gaps
 - gc_sample_size_bits: cantidad de bits totales que se usa para almacenar los samples
@@ -34,7 +34,7 @@ Para el caso 2 (gap coding):
 - gc_select_search_not_found: Las veces que no se encontro el elemento en el vector
 
  Para el caso 3 (shannon fano):
- - sf_gen_time_ms: Tiempo que tomo general el shannon fano a partir del gap coding
+ - sf_gen_time_ms: Tiempo que tomo generar el shannon fano a partir del gap coding
  - sf_search_time_ms: Tiempo que tomo hacer RANDOM_BINARY_SEARCH_COUNT búsquedas de elementos del vector
  - space_bits_compressed: Espacio que ocupa el vector comprimido
  - space_bits_explicit: Bits que ocupaba el vector original
@@ -58,7 +58,7 @@ Rango: `[-9223372036854775808, 9223372036854775807]`
 
 ## Como ejecutar
 
-**Modo benchmark** -- genera vectores, construye estructuras y mide tiempos para todos los casos:
+**Modo benchmark**: genera vectores, construye estructuras y mide tiempos para todos los casos:
 ```bash
 ./main --benchmark
 ```
@@ -67,7 +67,7 @@ El resultado se escribe en `salida.csv`. Opcionalmente se puede especificar otro
 ./main --benchmark -o <archivo_salida.csv>
 ```
 
-**Modo archivo** -- lee un CSV con números enteros, construye la estructura elegida y permite buscar interactivamente:
+**Modo archivo**: lee un CSV con números enteros, construye la estructura elegida y permite buscar interactivamente:
 ```bash
 ./main -i <archivo.csv>
 ```
